@@ -50,8 +50,11 @@ const LoginPage: React.FC = () => {
       <div className="max-w-md w-full mx-4">
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
           <div className="text-center mb-8">
-            <Link to="/" className="text-3xl font-bold text-white hover:text-white/80 transition-colors">
-              ProjectFlow
+            <Link to="/" className="flex items-center justify-center space-x-3 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">P</span>
+              </div>
+              <span className="text-3xl font-bold text-white">ProjectFlow</span>
             </Link>
             <p className="text-white/80 mt-4 text-lg">
               {isSignUp ? 'Create your account' : 'Sign in to your account'}

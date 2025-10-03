@@ -15,8 +15,11 @@ const Navigation: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-bold text-white hover:text-white/80 transition-colors">
-            ProjectFlow
+          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">P</span>
+            </div>
+            <span className="text-xl font-bold text-white">ProjectFlow</span>
           </Link>
 
           {/* Navigation Links */}
