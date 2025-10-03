@@ -9,9 +9,19 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "mcp-bridge": "node mcp-bridge-server.js",
-    "dev:full": "concurrently \"npm run mcp-bridge\" \"npm run dev\""
+    "dev:full": "concurrently \"npm run mcp-bridge\" \"npm run dev\"",
+    "generate-types": "node scripts/generate-types.js",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:reset": "npx supabase db reset",
+    "supabase:migrate": "npx supabase db push",
+    "supabase:status": "npx supabase status",
+    "db:generate-types": "npm run generate-types",
+    "db:seed": "npx supabase seed",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
     "@modelcontextprotocol/sdk": "^1.18.2",
     "@supabase/supabase-js": "^2.58.0",
     "cors": "^2.8.5",
@@ -37,6 +47,7 @@
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "postcss": "^8.5.6",
+    "supabase": "^2.48.3",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",

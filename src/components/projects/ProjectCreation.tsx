@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { SupabaseProjectService } from '../../services/supabaseProjectService';
 import Navigation from '../layout/Navigation';
 import AIProjectCreation from './AIProjectCreation';
+import EnhancedAIProjectCreation from './EnhancedAIProjectCreation';
 // import { AnalysisResults } from '../../types/index';
 
 interface ProjectFormData {
@@ -182,7 +183,7 @@ const ProjectCreation: React.FC = () => {
 
   if (useAIMode) {
     return (
-      <AIProjectCreation
+      <EnhancedAIProjectCreation
         onComplete={handleAIProjectComplete}
         onCancel={handleCancelAI}
       />
