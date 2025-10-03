@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext-safe';
 import LandingPage from './components/pages/LandingPage';
+import LoginPage from './components/pages/LoginPage';
 import Dashboard from './components/pages/Dashboard';
 import ProjectsPage from './components/pages/ProjectsPage';
 import TeamPage from './components/pages/TeamPage';
@@ -9,6 +10,7 @@ import ProjectCreation from './components/projects/ProjectCreation';
 import AdminSetup from './components/admin/AdminSetup';
 
 function App() {
+  console.log('Full App component rendering...');
 
   return (
     <AuthProvider>
@@ -16,13 +18,12 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
-          {/* Login disabled - redirect to dashboard */}
-          <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/login" element={<LoginPage />} />
 
           {/* Admin Setup */}
           <Route path="/admin/setup" element={<AdminSetup />} />
 
-          {/* All routes are now accessible (authentication disabled) */}
+          {/* Protected Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/team" element={<TeamPage />} />

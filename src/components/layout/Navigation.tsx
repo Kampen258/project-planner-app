@@ -55,6 +55,14 @@ const Navigation: React.FC = () => {
             <span className="text-white/80 text-sm hidden sm:block">
               {user.email}
             </span>
+            <Link
+              to="/profile"
+              className={`text-white hover:text-white transition-colors px-4 py-2 rounded-lg font-medium bg-blue-500/20 border border-blue-400/30 ${
+                isActive('/profile') ? 'bg-blue-500/40' : 'hover:bg-blue-500/30'
+              }`}
+            >
+              👤 Profile
+            </Link>
             <button
               onClick={signOut}
               className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300 border border-white/30 text-sm font-medium"
@@ -90,6 +98,14 @@ const Navigation: React.FC = () => {
               }`}
             >
               Team
+            </Link>
+            <Link
+              to="/profile"
+              className={`text-white hover:text-white transition-colors px-3 py-2 rounded-lg text-sm font-medium bg-blue-500/20 border border-blue-400/30 ${
+                isActive('/profile') ? 'bg-blue-500/40' : 'hover:bg-blue-500/30'
+              }`}
+            >
+              👤 Profile
             </Link>
           </div>
         </div>

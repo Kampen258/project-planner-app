@@ -1,10 +1,16 @@
+console.log('🏞️ LandingPage.tsx: Loading LandingPage component...');
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Navigation from '../layout/Navigation';
 
+console.log('📦 LandingPage.tsx: All imports loaded');
+
 const LandingPage: React.FC = () => {
+  console.log('🎬 LandingPage.tsx: Component rendering...');
   const { user } = useAuth();
+  console.log('👤 LandingPage.tsx: User state:', user);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-400">

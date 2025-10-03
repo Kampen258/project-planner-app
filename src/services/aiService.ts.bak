@@ -1,0 +1,323 @@
+import { AnalysisResults, ProgressUpdate, ProjectContext, InterviewQuestion } from '../types/index';
+
+const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
+const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+
+export class AIService {
+  /**
+   * Analyze an uploaded document and extract project information
+   */
+  async analyzeDocument(
+    fileContent: string,
+    userId: string,
+    progressCallback?: (update: ProgressUpdate) => void
+  ): Promise<AnalysisResults> {
+    try {
+      // Step 1: Count words
+      const wordCount = fileContent.split(/\s+/).length;
+      progressCallback?.({
+        step: 'reading',
+        message: 'Reading your document...',
+        detail: `(${wordCount.toLocaleString()} words detected)`
+      });
+
+      // Step 2: Build analysis prompt
+      const prompt = this.buildAnalysisPrompt(fileContent);
+
+      progressCallback?.({
+        step: 'analyzing',
+        message: 'Analyzing content...',
+        detail: 'This may take 30-60 seconds'
+      });
+
+      // Step 3: Call Claude API
+      const response = await this.callClaude(prompt, {
+        user_id: userId,
+        word_count: wordCount
+      });
+
+      // Step 4: Parse response
+      const analysisData = JSON.parse(response);
+
+      progressCallback?.({
+        step: 'complete',
+        message: 'Analysis complete!',
+        detail: `Found ${analysisData.extraction.features.length} features and ${analysisData.extraction.tasks.length} tasks`
+      });
+
+      // Step 5: Calculate completeness
+      const completeness = this.calculateCompleteness(analysisData.extraction.context);
+
+      return {
+        extraction: analysisData.extraction,
+        completeness,
+        metadata: {
+          word_count: wordCount,
+          analysis_duration: 0, // Will be tracked by caller
+          ai_model: CLAUDE_MODEL,
+          tokens_used: 0 // Will be from API response
+        }
+      };
+    } catch (error) {
+      console.error('Document analysis error:', error);
+      throw new Error('Failed to analyze document. Please try again.');
+    }
+  }
+
+  /**
+   * Generate interview questions based on missing context
+   */
+  async generateInterviewQuestions(
+    incompleteCategoriesInput: string[],
+    projectContext: Partial<ProjectContext>
+  ): Promise<InterviewQuestion[]> {
+    const incompleteCategories = incompleteCategoriesInput as Array<keyof ProjectContext>;
+
+    const prompt = `Based on the incomplete categories and current project context, generate targeted interview questions.
+
+Incomplete categories: ${incompleteCategories.join(', ')}
+
+Current context: ${JSON.stringify(projectContext, null, 2)}
+
+For each incomplete category, generate 1-2 specific questions that will help gather the missing information.
+
+Return a JSON array of questions with this structure:
+{
+  "questions": [
+    {
+      "category": "category_name",
+      "question": "The question to ask",
+      "priority": "high|medium|low",
+      "impact_on_success_score": 10
+    }
+  ]
+}`;
+
+    const response = await this.callClaude(prompt, { projectContext });
+    const data = JSON.parse(response);
+
+    return data.questions.map((q: any, index: number) => ({
+      id: `q_${index}`,
+      ...q
+    }));
+  }
+
+  /**
+   * Process user's answer and extract structured data
+   */
+  async processAnswer(
+    answer: string,
+    question: InterviewQuestion,
+    currentContext: Partial<ProjectContext>
+  ): Promise<{
+    extractedData: any;
+    needsFollowUp: boolean;
+    followUpQuestion?: string;
+  }> {
+    const prompt = `Process this user answer and extract structured information.
+
+Question Category: ${question.category}
+Question: ${question.question}
+User Answer: ${answer}
+
+Current Context: ${JSON.stringify(currentContext, null, 2)}
+
+Tasks:
+1. Extract structured data from the answer
+2. Determine if a follow-up question is needed for clarification
+3. If follow-up needed, provide the question
+
+Return JSON:
+{
+  "extractedData": { /* structured data for the category */ },
+  "needsFollowUp": true/false,
+  "followUpQuestion": "question if needed"
+}`;
+
+    const response = await this.callClaude(prompt, { answer, question });
+    return JSON.parse(response);
+  }
+
+  /**
+   * Calculate project success score based on context completeness
+   */
+  calculateSuccessScore(context: Partial<ProjectContext>): number {
+    let score = 25; // Base score for creating a project
+
+    const weights: Record<keyof ProjectContext, number> = {
+      goals_and_objectives: 15,
+      target_audience: 10,
+      budget_and_resources: 10,
+      success_criteria_kpis: 15,
+      external_resources: 5,
+      background_history: 10,
+      stakeholders: 10,
+      risks_and_concerns: 15
+    };
+
+    for (const [category, weight] of Object.entries(weights)) {
+      const contextData = context[category as keyof ProjectContext];
+      if (contextData && Object.keys(contextData).length > 0) {
+        score += weight;
+      }
+    }
+
+    return Math.min(score, 100);
+  }
+
+  /**
+   * Build the prompt for document analysis
+   */
+  private buildAnalysisPrompt(fileContent: string): string {
+    return `Analyze this project document and extract comprehensive structured information:
+
+${fileContent}
+
+Extract and structure the following in JSON format:
+
+{
+  "extraction": {
+    "project": {
+      "title": "extracted project title",
+      "description": "brief description",
+      "type": "development|research|marketing|etc"
+    },
+    "context": {
+      "goals_and_objectives": {
+        "primary_goal": "main goal",
+        "key_objectives": ["obj1", "obj2"],
+        "definition_of_done": "what done means",
+        "success_criteria": ["criteria1", "criteria2"]
+      },
+      "target_audience": {
+        "primary_audience": "who is this for",
+        "user_personas": ["persona1"],
+        "problem_solved": "what problem"
+      },
+      "budget_and_resources": {
+        "budget_amount": 0,
+        "budget_currency": "USD",
+        "team_size": 0,
+        "available_resources": ["resource1"]
+      },
+      "timeline": {
+        "start_date": "YYYY-MM-DD",
+        "end_date": "YYYY-MM-DD",
+        "duration": "description",
+        "phases": [{"name": "phase", "duration": "time"}]
+      }
+      // Include other context categories as available
+    },
+    "features": [
+      {
+        "name": "Feature name",
+        "description": "What it does",
+        "task_count": 0
+      }
+    ],
+    "tasks": [
+      {
+        "title": "Task title",
+        "description": "Task details",
+        "feature": "Which feature",
+        "phase": "Which phase",
+        "priority": "low|medium|high",
+        "estimated_effort": "time estimate"
+      }
+    ]
+  }
+}
+
+Important:
+- Only include categories where information is found
+- Be thorough but accurate
+- For missing information, omit the field
+- Extract all tasks mentioned or implied`;
+  }
+
+  /**
+   * Calculate completeness of context
+   */
+  private calculateCompleteness(context: Partial<ProjectContext>): {
+    overall_score: number;
+    complete_categories: string[];
+    incomplete_categories: string[];
+    questions_needed: number;
+  } {
+    const allCategories: Array<keyof ProjectContext> = [
+      'goals_and_objectives',
+      'target_audience',
+      'budget_and_resources',
+      'success_criteria_kpis',
+      'external_resources',
+      'background_history',
+      'stakeholders',
+      'risks_and_concerns'
+    ];
+
+    const complete: string[] = [];
+    const incomplete: string[] = [];
+
+    for (const category of allCategories) {
+      const data = context[category];
+      if (data && Object.keys(data).length > 0) {
+        complete.push(category);
+      } else {
+        incomplete.push(category);
+      }
+    }
+
+    // Base score for having a document
+    let score = 25;
+
+    // Add score for each complete category
+    const scorePerCategory = 70 / allCategories.length;
+    score += complete.length * scorePerCategory;
+
+    return {
+      overall_score: Math.round(Math.min(score, 70)), // Max 70% from document
+      complete_categories: complete,
+      incomplete_categories: incomplete,
+      questions_needed: incomplete.filter(c =>
+        ['goals_and_objectives', 'budget_and_resources', 'risks_and_concerns'].includes(c)
+      ).length
+    };
+  }
+
+  /**
+   * Call Claude API
+   */
+  private async callClaude(prompt: string, context: any): Promise<string> {
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('Anthropic API key not configured');
+    }
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 4000,
+        messages: [
+          {
+            role: 'user',
+            content: `${prompt}\n\nAdditional Context: ${JSON.stringify(context, null, 2)}`
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Claude API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.content[0].text;
+  }
+}
+
+export const aiService = new AIService();
