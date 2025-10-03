@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "claude-projects": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/Users/edovankampen/Documents/Project planner/project-planner-app/mcp-servers/claude-projects-server.js"],
+      "description": "Access Claude Projects data via MCP",
+      "enabled": true
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/edovankampen/Documents/Project planner/project-planner-app"],
+      "description": "Local filesystem access for project management",
+      "enabled": true
+    }
+  }
+}

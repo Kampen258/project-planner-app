@@ -1,0 +1,6 @@
+{
+  "apiKey": "your_claude_api_key_here",
+  "organizationId": "your_claude_org_id_here",
+  "baseUrl": "https://api.anthropic.com",
+  "note": "Claude doesn't currently have a public API for fetching conversations/projects. This is prepared for when that API becomes available."
+}

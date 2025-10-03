@@ -1,0 +1,16 @@
+{
+  "projects": [
+    {
+      "id": "test_project",
+      "name": "Test Project",
+      "description": "A test project for validation",
+      "created": "2025-10-02T21:00:00Z",
+      "updated": "2025-10-02T21:00:00Z",
+      "status": "active",
+      "tags": [
+        "test"
+      ],
+      "progress": 0
+    }
+  ]
+}
