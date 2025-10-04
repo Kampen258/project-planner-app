@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-10-04T20:52:36.443Z",
+  "summary": {
+    "passed": 2,
+    "failed": 2,
+    "total": 4,
+    "passRate": "50.0"
+  },
+  "tests": [
+    {
+      "name": "Vite Dev Server",
+      "status": "PASSED",
+      "message": "Running on port 5173",
+      "details": [
+        "React development server"
+      ]
+    },
+    {
+      "name": "MCP Bridge Server",
+      "status": "PASSED",
+      "message": "Running on port 3001",
+      "details": [
+        "Claude MCP bridge server"
+      ]
+    },
+    {
+      "name": "Landing Page",
+      "path": "/",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Plan. Execute. Succeed., Everything you need to succeed"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "path": "/dashboard",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Dashboard, User Information, Projects, System Status"
+      ]
+    }
+  ]
+}

@@ -80,7 +80,7 @@ export function VoiceAssistantStatus({
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-[10001]">
       <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg">
         <div
           className="flex items-center justify-between p-3 cursor-pointer"

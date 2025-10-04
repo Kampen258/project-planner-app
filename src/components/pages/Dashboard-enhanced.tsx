@@ -1,14 +1,159 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/SimpleAuthContext';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentTime] = useState(new Date());
   const [selectedProjects, setSelectedProjects] = useState([1, 2]); // Show first 2 projects by default
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = () => {
     // In a real app, this would clear auth state
     navigate('/');
+  };
+
+  // Pro/Admin users have full access to voice features - Debug info
+  console.log('🎤 Dashboard Debug - User:', user?.email, 'Should have access:', user?.email === 'edovankampen@outlook.com');
+  const hasVoiceAccess = user?.email === 'edovankampen@outlook.com' || user?.email === 'admin@projectflow.com';
+  console.log('🎤 Dashboard hasVoiceAccess:', hasVoiceAccess);
+
+  const handleVoiceActivation = () => {
+    console.log('🎤 [Dashboard] Voice activation initiated');
+    console.log('🎤 [Dashboard] User access check:', {
+      email: user?.email,
+      hasAccess: hasVoiceAccess,
+      timestamp: new Date().toISOString()
+    });
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      const recognition = new SpeechRecognition();
+
+      console.log('🎤 [Dashboard] SpeechRecognition API available, creating instance');
+
+      // Configure recognition
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+
+      console.log('🎤 [Dashboard] Recognition configuration:', {
+        continuous: recognition.continuous,
+        interimResults: recognition.interimResults,
+        lang: recognition.lang,
+        maxAlternatives: recognition.maxAlternatives
+      });
+
+      setIsListening(true);
+      console.log('🎤 [Dashboard] Set listening state to true');
+
+      recognition.onstart = () => {
+        console.log('🎤 [Dashboard] Voice recognition started successfully');
+        console.log('🎤 [Dashboard] Microphone is now active and listening...');
+      };
+
+      recognition.onresult = (event) => {
+        console.log('🎤 [Dashboard] Voice recognition result received');
+        console.log('🎤 [Dashboard] Full event object:', event);
+
+        const results = event.results;
+        const resultIndex = event.resultIndex;
+        const transcript = results[resultIndex][0].transcript;
+        const confidence = results[resultIndex][0].confidence;
+
+        console.log('🎤 [Dashboard] Speech detection details:', {
+          transcript: transcript,
+          confidence: confidence,
+          resultIndex: resultIndex,
+          totalResults: results.length,
+          timestamp: new Date().toISOString()
+        });
+
+        console.log('🎤 [Dashboard] Voice command processed:', transcript);
+
+        // Enhanced alert with more details
+        alert(`🎤 Voice Command Detected!\n\nTranscript: "${transcript}"\nConfidence: ${Math.round(confidence * 100)}%\n\n✅ Voice agent activated successfully!`);
+      };
+
+      recognition.onspeechstart = () => {
+        console.log('🎤 [Dashboard] Speech detected - user is speaking');
+      };
+
+      recognition.onspeechend = () => {
+        console.log('🎤 [Dashboard] Speech ended - user stopped speaking');
+      };
+
+      recognition.onaudiostart = () => {
+        console.log('🎤 [Dashboard] Audio input started');
+      };
+
+      recognition.onaudioend = () => {
+        console.log('🎤 [Dashboard] Audio input ended');
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        console.log('🎤 [Dashboard] Voice recognition session ended');
+        console.log('🎤 [Dashboard] Set listening state to false');
+        console.log('🎤 [Dashboard] Ready for next voice command');
+      };
+
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        console.error('🎤 [Dashboard] Voice recognition error occurred:', {
+          error: event.error,
+          message: event.message,
+          timestamp: new Date().toISOString()
+        });
+
+        let errorMessage = 'Voice recognition error occurred.';
+        switch(event.error) {
+          case 'no-speech':
+            errorMessage = 'No speech detected. Please try speaking clearly.';
+            break;
+          case 'audio-capture':
+            errorMessage = 'Microphone access error. Please check permissions.';
+            break;
+          case 'not-allowed':
+            errorMessage = 'Microphone permission denied. Please allow microphone access.';
+            break;
+          case 'network':
+            errorMessage = 'Network error occurred during voice recognition.';
+            break;
+          case 'service-not-allowed':
+            errorMessage = 'Voice recognition service not available.';
+            break;
+          default:
+            errorMessage = `Voice recognition error: ${event.error}`;
+        }
+
+        console.error('🎤 [Dashboard] User-friendly error message:', errorMessage);
+        alert(`🎤 Voice Recognition Error\n\n${errorMessage}\n\nPlease try again.`);
+      };
+
+      console.log('🎤 [Dashboard] Starting voice recognition...');
+      try {
+        recognition.start();
+        console.log('🎤 [Dashboard] Recognition.start() called successfully');
+      } catch (error) {
+        console.error('🎤 [Dashboard] Error starting recognition:', error);
+        setIsListening(false);
+        alert('Failed to start voice recognition. Please try again.');
+      }
+    } else {
+      console.error('🎤 [Dashboard] SpeechRecognition API not supported');
+      console.log('🎤 [Dashboard] Browser compatibility check failed');
+      console.log('🎤 [Dashboard] Available APIs:', {
+        webkitSpeechRecognition: 'webkitSpeechRecognition' in window,
+        SpeechRecognition: 'SpeechRecognition' in window,
+        userAgent: navigator.userAgent
+      });
+      alert('🎤 Speech Recognition Not Supported\n\nYour browser does not support voice recognition.\nPlease use Chrome, Edge, or Safari for voice features.');
+    }
   };
 
   const allProjects = [
@@ -19,6 +164,23 @@ const Dashboard: React.FC = () => {
     { id: 5, name: 'Customer Portal', description: 'Self-service customer interface', status: 'In Progress', statusColor: 'bg-blue-500/20 text-blue-100', progress: 60, team: ['LM', 'SC', '+2'], progressColor: 'bg-blue-400/70' },
     { id: 6, name: 'Analytics Dashboard', description: 'Data visualization platform', status: 'Completed', statusColor: 'bg-emerald-500/20 text-emerald-100', progress: 100, team: ['RT', 'MJ'], progressColor: 'bg-emerald-400/70' }
   ];
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowProjectDropdown(false);
+      }
+    };
+
+    if (showProjectDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showProjectDropdown]);
 
   const handleProjectToggle = (projectId: number) => {
     if (selectedProjects.includes(projectId)) {
@@ -47,7 +209,8 @@ const Dashboard: React.FC = () => {
       {/* Navigation */}
       <nav className="bg-white/10 backdrop-blur-md border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex items-center h-16">
+            {/* LEFT: Logo */}
             <div className="flex items-center space-x-2">
               <Link to="/" className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -57,34 +220,78 @@ const Dashboard: React.FC = () => {
               </Link>
             </div>
 
-            <div className="flex items-center space-x-6">
+            {/* LEFT NAVIGATION */}
+            <div className="hidden md:flex items-center space-x-6 ml-8">
               <Link
                 to="/dashboard"
-                className="text-white px-3 py-2 rounded-md text-sm font-medium bg-white/20"
+                className="text-white px-3 py-2 rounded-lg font-medium bg-white/20"
               >
                 Dashboard
               </Link>
               <Link
                 to="/projects"
-                className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
+                className="text-white/90 hover:text-white transition-colors px-3 py-2 rounded-lg font-medium hover:bg-white/10"
               >
                 Projects
               </Link>
+            </div>
+
+            {/* CENTER: Prominent Voice Microphone - Only for paid subscriptions */}
+            {hasVoiceAccess && (
+              <div className="flex-1 flex justify-center">
+                <button
+                  onClick={handleVoiceActivation}
+                  className={`relative px-3 py-2 rounded-full transition-all duration-300 transform hover:scale-110 ${
+                    isListening
+                      ? 'bg-red-500/40 border-2 border-red-300 shadow-xl animate-pulse scale-110'
+                      : 'bg-white/30 border-2 border-white/40 hover:bg-white/40 hover:border-white/60 shadow-lg'
+                  }`}
+                  title={isListening ? "🎤 Listening..." : "🎤 Click to activate voice assistant"}
+                >
+                  <svg
+                    className={`w-5 h-5 transition-all duration-300 ${
+                      isListening ? 'text-red-100' : 'text-white drop-shadow-sm'
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                    />
+                  </svg>
+
+                  {/* Listening indicator with glow effect */}
+                  {isListening && (
+                    <>
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-400 rounded-full animate-ping"></div>
+                      <div className="absolute inset-0 bg-red-400/20 rounded-full animate-pulse"></div>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* RIGHT NAVIGATION */}
+            <div className="hidden md:flex items-center space-x-6">
               <Link
                 to="/team"
-                className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
+                className="text-white/90 hover:text-white transition-colors px-3 py-2 rounded-lg font-medium hover:bg-white/10"
               >
                 Team
               </Link>
               <Link
                 to="/profile"
-                className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
+                className="text-white hover:text-white transition-colors px-4 py-2 rounded-lg font-medium bg-blue-500/20 border border-blue-400/30 hover:bg-blue-500/30"
               >
                 Profile
               </Link>
               <button
                 onClick={handleSignOut}
-                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white px-4 py-2 hover:bg-white/15 transition-all duration-300 text-sm font-medium"
+                className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300 border border-white/30 text-sm font-medium"
               >
                 Sign Out
               </button>
@@ -172,42 +379,39 @@ const Dashboard: React.FC = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-white">Project Overview</h2>
               <div className="flex items-center space-x-3">
-                <div className="relative">
+                <div className="relative" ref={dropdownRef}>
                   <button
                     className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm hover:bg-white/15 transition-colors flex items-center space-x-2"
-                    onClick={() => {
-                      const dropdown = document.getElementById('project-dropdown');
-                      if (dropdown) {
-                        dropdown.classList.toggle('hidden');
-                      }
-                    }}
+                    onClick={() => setShowProjectDropdown(!showProjectDropdown)}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
                     </svg>
                     <span>Select Projects</span>
                   </button>
-                  <div id="project-dropdown" className="hidden absolute top-full right-0 mt-2 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl p-3 min-w-[280px] z-50">
-                    <p className="text-white/80 text-xs mb-2">Choose up to 3 projects to display:</p>
-                    <div className="space-y-2">
-                      {allProjects.map((project) => (
-                        <label key={project.id} className="flex items-center space-x-3 cursor-pointer p-2 rounded-lg hover:bg-white/10">
-                          <input
-                            type="checkbox"
-                            checked={selectedProjects.includes(project.id)}
-                            onChange={() => handleProjectToggle(project.id)}
-                            disabled={!selectedProjects.includes(project.id) && selectedProjects.length >= 3}
-                            className="w-4 h-4 rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm font-medium truncate">{project.name}</p>
-                            <p className="text-white/60 text-xs truncate">{project.description}</p>
-                          </div>
-                          <div className="w-8 text-white/70 text-xs text-right">{project.progress}%</div>
-                        </label>
-                      ))}
+                  {showProjectDropdown && (
+                    <div className="absolute top-full right-0 mt-2 bg-white/15 backdrop-blur-md border border-white/20 rounded-xl p-3 min-w-[280px] max-h-[400px] overflow-y-auto shadow-2xl z-[9999]">
+                      <p className="text-white/80 text-xs mb-2">Choose up to 3 projects to display:</p>
+                      <div className="space-y-2">
+                        {allProjects.map((project) => (
+                          <label key={project.id} className="flex items-center space-x-3 cursor-pointer p-2 rounded-lg hover:bg-white/10">
+                            <input
+                              type="checkbox"
+                              checked={selectedProjects.includes(project.id)}
+                              onChange={() => handleProjectToggle(project.id)}
+                              disabled={!selectedProjects.includes(project.id) && selectedProjects.length >= 3}
+                              className="w-4 h-4 rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white text-sm font-medium truncate">{project.name}</p>
+                              <p className="text-white/60 text-xs truncate">{project.description}</p>
+                            </div>
+                            <div className="w-8 text-white/70 text-xs text-right">{project.progress}%</div>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 <Link
                   to="/projects"

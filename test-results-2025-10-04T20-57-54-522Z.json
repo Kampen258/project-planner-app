@@ -1,0 +1,334 @@
+{
+  "timestamp": "2025-10-04T20:57:54.522Z",
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "warnings": 1,
+    "total": 10,
+    "passRate": 90
+  },
+  "performance": {
+    "totalTime": 5,
+    "averageResponseTime": 1,
+    "slowestTest": {
+      "name": "Landing Page",
+      "time": 1
+    },
+    "fastestTest": {
+      "name": "Landing Page",
+      "time": 1
+    },
+    "totalExecutionTime": 35
+  },
+  "diagnostics": {
+    "reactDetected": true,
+    "viteDetected": true,
+    "tailwindDetected": false,
+    "routerDetected": false
+  },
+  "categories": {
+    "server": {
+      "passed": 2,
+      "failed": 0,
+      "warnings": 0
+    },
+    "diagnostic": {
+      "passed": 2,
+      "failed": 1,
+      "warnings": 0
+    },
+    "page": {
+      "passed": 5,
+      "failed": 0,
+      "warnings": 0
+    }
+  },
+  "recommendations": [],
+  "tests": [
+    {
+      "name": "Vite Dev Server",
+      "category": "server",
+      "port": 5173,
+      "status": "PASSED",
+      "message": "Running on port 5173",
+      "details": [
+        "React development server",
+        "Response time: 7ms",
+        "Status: 200"
+      ],
+      "performance": {
+        "responseTime": 7,
+        "statusCode": 200
+      }
+    },
+    {
+      "name": "MCP Bridge Server",
+      "category": "server",
+      "port": 3001,
+      "status": "PASSED",
+      "message": "Running on port 3001",
+      "details": [
+        "Claude MCP bridge server",
+        "Response time: 1ms",
+        "Status: 404"
+      ],
+      "performance": {
+        "responseTime": 1,
+        "statusCode": 404
+      }
+    },
+    {
+      "name": "React DevTools Detection",
+      "category": "diagnostic",
+      "status": "PASSED",
+      "message": "Verify React development tools are active",
+      "details": [
+        "Response time: 2ms"
+      ],
+      "performance": {
+        "responseTime": 2
+      }
+    },
+    {
+      "name": "Vite HMR Detection",
+      "category": "diagnostic",
+      "status": "PASSED",
+      "message": "Verify Vite hot module replacement is working",
+      "details": [
+        "Response time: 5ms"
+      ],
+      "performance": {
+        "responseTime": 5
+      }
+    },
+    {
+      "name": "Tailwind CSS Detection",
+      "category": "diagnostic",
+      "status": "FAILED",
+      "message": "Verify Tailwind CSS styling system is loaded",
+      "details": [
+        "Response time: 1ms"
+      ],
+      "performance": {
+        "responseTime": 1
+      }
+    },
+    {
+      "name": "Landing Page",
+      "path": "/",
+      "status": "PASSED",
+      "message": "Required content found",
+      "details": [
+        "Required: ✅ <div id=\"root\">, ✅ ProjectFlow",
+        "Optional: ⚠️ Plan. Execute. Succeed., ⚠️ Everything you need to succeed",
+        "Technology: ✅ vite, ✅ react"
+      ],
+      "performance": {
+        "responseTime": 1,
+        "contentLength": 826,
+        "attempts": 1
+      },
+      "validation": {
+        "required": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ <div id=\"root\">",
+            "✅ ProjectFlow"
+          ]
+        },
+        "optional": {
+          "passed": 0,
+          "failed": 2,
+          "items": [
+            "⚠️ Plan. Execute. Succeed.",
+            "⚠️ Everything you need to succeed"
+          ]
+        },
+        "technology": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ vite",
+            "✅ react"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Dashboard",
+      "path": "/dashboard",
+      "status": "PASSED",
+      "message": "Required content found",
+      "details": [
+        "Required: ✅ <div id=\"root\">, ✅ ProjectFlow",
+        "Optional: ⚠️ User Information, ⚠️ System Status, ⚠️ Quick Navigation",
+        "Technology: ✅ vite, ✅ react"
+      ],
+      "performance": {
+        "responseTime": 1,
+        "contentLength": 826,
+        "attempts": 1
+      },
+      "validation": {
+        "required": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ <div id=\"root\">",
+            "✅ ProjectFlow"
+          ]
+        },
+        "optional": {
+          "passed": 0,
+          "failed": 3,
+          "items": [
+            "⚠️ User Information",
+            "⚠️ System Status",
+            "⚠️ Quick Navigation"
+          ]
+        },
+        "technology": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ vite",
+            "✅ react"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Projects Page",
+      "path": "/projects",
+      "status": "PASSED",
+      "message": "Required content found",
+      "details": [
+        "Required: ✅ <div id=\"root\">, ✅ ProjectFlow",
+        "Optional: ⚠️ Projects, ⚠️ Supabase",
+        "Technology: ✅ vite, ✅ react"
+      ],
+      "performance": {
+        "responseTime": 1,
+        "contentLength": 826,
+        "attempts": 1
+      },
+      "validation": {
+        "required": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ <div id=\"root\">",
+            "✅ ProjectFlow"
+          ]
+        },
+        "optional": {
+          "passed": 0,
+          "failed": 2,
+          "items": [
+            "⚠️ Projects",
+            "⚠️ Supabase"
+          ]
+        },
+        "technology": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ vite",
+            "✅ react"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Team Page",
+      "path": "/team",
+      "status": "PASSED",
+      "message": "Required content found",
+      "details": [
+        "Required: ✅ <div id=\"root\">, ✅ ProjectFlow",
+        "Optional: ⚠️ Team, ⚠️ Collaborate",
+        "Technology: ✅ vite, ✅ react"
+      ],
+      "performance": {
+        "responseTime": 1,
+        "contentLength": 826,
+        "attempts": 1
+      },
+      "validation": {
+        "required": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ <div id=\"root\">",
+            "✅ ProjectFlow"
+          ]
+        },
+        "optional": {
+          "passed": 0,
+          "failed": 2,
+          "items": [
+            "⚠️ Team",
+            "⚠️ Collaborate"
+          ]
+        },
+        "technology": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ vite",
+            "✅ react"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Profile Page",
+      "path": "/profile",
+      "status": "PASSED",
+      "message": "Required content found",
+      "details": [
+        "Required: ✅ <div id=\"root\">, ✅ ProjectFlow",
+        "Optional: ⚠️ Profile, ⚠️ Account",
+        "Technology: ✅ vite, ✅ react"
+      ],
+      "performance": {
+        "responseTime": 1,
+        "contentLength": 826,
+        "attempts": 1
+      },
+      "validation": {
+        "required": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ <div id=\"root\">",
+            "✅ ProjectFlow"
+          ]
+        },
+        "optional": {
+          "passed": 0,
+          "failed": 2,
+          "items": [
+            "⚠️ Profile",
+            "⚠️ Account"
+          ]
+        },
+        "technology": {
+          "passed": 2,
+          "failed": 0,
+          "items": [
+            "✅ vite",
+            "✅ react"
+          ]
+        }
+      }
+    }
+  ],
+  "configuration": {
+    "baseUrl": "http://localhost:5173",
+    "timeout": 10000,
+    "retryAttempts": 3,
+    "testSuite": "Enhanced Project Planner Test Suite v2.0"
+  }
+}

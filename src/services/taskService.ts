@@ -1,71 +1,26 @@
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase.client'
+import type { Task, TaskInsert, TaskUpdate } from '../lib/database.types'
 
-export interface Task {
-  id: string
-  project_id: string
-  name: string
-  description: string | null
-  due_date: string | null
-  priority: 'low' | 'medium' | 'high' | 'urgent'
-  status: 'todo' | 'in_progress' | 'completed' | 'cancelled'
-  completed: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface SupabaseTask {
-  id: string
-  project_id: string
-  name: string
-  description: string | null
-  due_date: string | null
-  priority: string
-  status: string
-  completed: boolean
-  created_at: string
-  updated_at: string
-}
-
-// Convert Supabase task to app task format
-function transformSupabaseTask(task: SupabaseTask): Task {
-  return {
-    id: task.id,
-    project_id: task.project_id,
-    name: task.name,
-    description: task.description,
-    due_date: task.due_date,
-    priority: task.priority as Task['priority'],
-    status: task.status as Task['status'],
-    completed: task.completed,
-    created_at: task.created_at,
-    updated_at: task.updated_at
-  }
-}
-
-// Convert app task to Supabase format
-function transformToSupabaseTask(task: Partial<Task>): Partial<SupabaseTask> {
-  return {
-    project_id: task.project_id,
-    name: task.name || '',
-    description: task.description || null,
-    due_date: task.due_date || null,
-    priority: task.priority || 'medium',
-    status: task.status || 'todo',
-    completed: task.completed || false,
-    updated_at: new Date().toISOString()
-  }
+// Type for task with user context
+export interface TaskWithProject extends Task {
+  project_name?: string;
+  project_status?: string;
 }
 
 export class TaskService {
   // Get all tasks for a project
-  static async getTasksByProject(projectId: string): Promise<Task[]> {
+  static async getTasksByProject(projectId: string, userId: string): Promise<Task[]> {
     try {
       console.log(`🔍 Fetching tasks for project: ${projectId}`)
 
       const { data, error } = await supabase
         .from('tasks')
-        .select('*')
+        .select(`
+          *,
+          projects!inner(user_id)
+        `)
         .eq('project_id', projectId)
+        .eq('projects.user_id', userId)
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -73,10 +28,8 @@ export class TaskService {
         return []
       }
 
-      const tasks = data ? data.map(transformSupabaseTask) : []
-      console.log(`✅ Retrieved ${tasks.length} tasks from database`)
-
-      return tasks
+      console.log(`✅ Retrieved ${data?.length || 0} tasks from database`)
+      return data || []
     } catch (error) {
       console.error('❌ Error in getTasksByProject:', error)
       return []

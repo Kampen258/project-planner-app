@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Project, MCPTask, ProjectMetadata } from '../mcpClient'
 import { TaskService, type Task } from '../services/taskService'
 import { ProjectService } from '../services/projectService'
@@ -26,30 +26,36 @@ export function ProjectDetailView({ project, onBack, onProjectUpdate }: ProjectD
   })
 
   useEffect(() => {
-    loadTasks()
-  }, [project.id])
+    void loadTasks()
+  }, [project.id, loadTasks])
 
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     try {
       setLoading(true)
-      console.log(`🔄 Loading tasks for project: ${project.name} (ID: ${project.id})`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔄 Loading tasks for project: ${project.name} (ID: ${project.id})`)
+      }
 
       const [projectTasks, stats] = await Promise.all([
         TaskService.getTasksByProject(project.id),
         TaskService.getProjectTaskStats(project.id)
       ])
 
-      console.log(`✅ Loaded ${projectTasks.length} tasks:`, projectTasks)
-      console.log(`📊 Task stats:`, stats)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ Loaded ${projectTasks.length} tasks:`, projectTasks)
+        console.log(`📊 Task stats:`, stats)
+      }
 
       setTasks(projectTasks)
       setTaskStats(stats)
     } catch (error) {
-      console.error('❌ Failed to load tasks:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ Failed to load tasks:', error)
+      }
     } finally {
       setLoading(false)
     }
-  }
+  }, [project.id, project.name])
 
   const handleCreateTask = async (taskData: Partial<Task>) => {
     try {

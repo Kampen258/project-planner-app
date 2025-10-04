@@ -156,27 +156,27 @@ export interface AnalysisResults {
       type: string;
     };
     context: Partial<ProjectContext>;
-    features: Array<{
+    features: {
       name: string;
       description: string;
       task_count: number;
-    }>;
-    tasks: Array<{
+    }[];
+    tasks: {
       title: string;
       description: string;
       feature?: string;
       phase?: string;
       priority: string;
       estimated_effort?: string;
-    }>;
+    }[];
     timeline?: {
       start_date?: string;
       end_date?: string;
       duration?: string;
-      phases?: Array<{
+      phases?: {
         name: string;
         duration: string;
-      }>;
+      }[];
     };
   };
   completeness: {

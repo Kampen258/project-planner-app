@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "mcp-bridge": "node mcp-bridge-server.js",
     "dev:full": "concurrently \"npm run mcp-bridge\" \"npm run dev\"",
+    "test:app": "node test-app-functionality.cjs",
     "generate-types": "node scripts/generate-types.js",
     "supabase:start": "npx supabase start",
     "supabase:stop": "npx supabase stop",
@@ -18,7 +19,9 @@
     "supabase:status": "npx supabase status",
     "db:generate-types": "npm run generate-types",
     "db:seed": "npx supabase seed",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "restart": "./restart-servers.sh",
+    "stop": "./stop-servers.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",

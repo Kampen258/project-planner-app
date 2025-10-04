@@ -60,10 +60,10 @@ export interface ProjectContext {
     start_date: string;
     end_date: string;
     duration: string;
-    phases: Array<{
+    phases: {
       name: string;
       duration: string;
-    }>;
+    }[];
   };
 }
 
@@ -75,19 +75,19 @@ export interface ProjectExtraction {
     type: string;
   };
   context: Partial<ProjectContext>;
-  features: Array<{
+  features: {
     name: string;
     description: string;
     task_count: number;
-  }>;
-  tasks: Array<{
+  }[];
+  tasks: {
     title: string;
     description: string;
     feature: string;
     phase: string;
     priority: 'low' | 'medium' | 'high';
     estimated_effort: string;
-  }>;
+  }[];
 }
 
 export interface AnalysisResults {

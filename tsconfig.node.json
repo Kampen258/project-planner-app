@@ -22,5 +22,15 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "eslint.config.js",
+    "postcss.config.js",
+    "tailwind.config.js",
+    "scripts/**/*.js",
+    "mcp-*.js",
+    "test-*.js",
+    "run-migration.js",
+    "mcp-servers/**/*.js"
+  ]
 }

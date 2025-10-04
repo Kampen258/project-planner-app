@@ -1,13 +1,152 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/SimpleAuthContext';
 
 const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
+  const [isListening, setIsListening] = useState(false);
 
   const handleSignOut = () => {
     navigate('/');
+  };
+
+  // Pro/Admin users have full access to voice features
+  const hasVoiceAccess = user?.email === 'edovankampen@outlook.com' || user?.email === 'admin@projectflow.com';
+
+  const handleVoiceActivation = () => {
+    console.log('🎤 [ProjectsPage] Voice activation initiated');
+    console.log('🎤 [ProjectsPage] User access check:', {
+      email: user?.email,
+      hasAccess: hasVoiceAccess,
+      timestamp: new Date().toISOString()
+    });
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      const recognition = new SpeechRecognition();
+
+      console.log('🎤 [ProjectsPage] SpeechRecognition API available, creating instance');
+
+      // Configure recognition
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+
+      console.log('🎤 [ProjectsPage] Recognition configuration:', {
+        continuous: recognition.continuous,
+        interimResults: recognition.interimResults,
+        lang: recognition.lang,
+        maxAlternatives: recognition.maxAlternatives
+      });
+
+      setIsListening(true);
+      console.log('🎤 [ProjectsPage] Set listening state to true');
+
+      recognition.onstart = () => {
+        console.log('🎤 [ProjectsPage] Voice recognition started successfully');
+        console.log('🎤 [ProjectsPage] Microphone is now active and listening...');
+      };
+
+      recognition.onresult = (event) => {
+        console.log('🎤 [ProjectsPage] Voice recognition result received');
+        console.log('🎤 [ProjectsPage] Full event object:', event);
+
+        const results = event.results;
+        const resultIndex = event.resultIndex;
+        const transcript = results[resultIndex][0].transcript;
+        const confidence = results[resultIndex][0].confidence;
+
+        console.log('🎤 [ProjectsPage] Speech detection details:', {
+          transcript: transcript,
+          confidence: confidence,
+          resultIndex: resultIndex,
+          totalResults: results.length,
+          timestamp: new Date().toISOString()
+        });
+
+        console.log('🎤 [ProjectsPage] Voice command processed:', transcript);
+        alert(`🎤 Voice Command Detected!\n\nTranscript: "${transcript}"\nConfidence: ${Math.round(confidence * 100)}%\n\n✅ Voice agent activated successfully!`);
+      };
+
+      recognition.onspeechstart = () => {
+        console.log('🎤 [ProjectsPage] Speech detected - user is speaking');
+      };
+
+      recognition.onspeechend = () => {
+        console.log('🎤 [ProjectsPage] Speech ended - user stopped speaking');
+      };
+
+      recognition.onaudiostart = () => {
+        console.log('🎤 [ProjectsPage] Audio input started');
+      };
+
+      recognition.onaudioend = () => {
+        console.log('🎤 [ProjectsPage] Audio input ended');
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        console.log('🎤 [ProjectsPage] Voice recognition session ended');
+        console.log('🎤 [ProjectsPage] Set listening state to false');
+        console.log('🎤 [ProjectsPage] Ready for next voice command');
+      };
+
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        console.error('🎤 [ProjectsPage] Voice recognition error occurred:', {
+          error: event.error,
+          message: event.message,
+          timestamp: new Date().toISOString()
+        });
+
+        let errorMessage = 'Voice recognition error occurred.';
+        switch(event.error) {
+          case 'no-speech':
+            errorMessage = 'No speech detected. Please try speaking clearly.';
+            break;
+          case 'audio-capture':
+            errorMessage = 'Microphone access error. Please check permissions.';
+            break;
+          case 'not-allowed':
+            errorMessage = 'Microphone permission denied. Please allow microphone access.';
+            break;
+          case 'network':
+            errorMessage = 'Network error occurred during voice recognition.';
+            break;
+          case 'service-not-allowed':
+            errorMessage = 'Voice recognition service not available.';
+            break;
+          default:
+            errorMessage = `Voice recognition error: ${event.error}`;
+        }
+
+        console.error('🎤 [ProjectsPage] User-friendly error message:', errorMessage);
+        alert(`🎤 Voice Recognition Error\n\n${errorMessage}\n\nPlease try again.`);
+      };
+
+      console.log('🎤 [ProjectsPage] Starting voice recognition...');
+      try {
+        recognition.start();
+        console.log('🎤 [ProjectsPage] Recognition.start() called successfully');
+      } catch (error) {
+        console.error('🎤 [ProjectsPage] Error starting recognition:', error);
+        setIsListening(false);
+        alert('Failed to start voice recognition. Please try again.');
+      }
+    } else {
+      console.error('🎤 [ProjectsPage] SpeechRecognition API not supported');
+      console.log('🎤 [ProjectsPage] Browser compatibility check failed');
+      console.log('🎤 [ProjectsPage] Available APIs:', {
+        webkitSpeechRecognition: 'webkitSpeechRecognition' in window,
+        SpeechRecognition: 'SpeechRecognition' in window,
+        userAgent: navigator.userAgent
+      });
+      alert('🎤 Speech Recognition Not Supported\n\nYour browser does not support voice recognition.\nPlease use Chrome, Edge, or Safari for voice features.');
+    }
   };
 
   const projects = [
@@ -167,7 +306,8 @@ const ProjectsPage: React.FC = () => {
       {/* Navigation */}
       <nav className="bg-white/10 backdrop-blur-md border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex items-center h-16">
+            {/* LEFT: Logo */}
             <div className="flex items-center space-x-2">
               <Link to="/" className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -177,7 +317,8 @@ const ProjectsPage: React.FC = () => {
               </Link>
             </div>
 
-            <div className="flex items-center space-x-6">
+            {/* LEFT NAVIGATION */}
+            <div className="flex items-center space-x-6 ml-8">
               <Link
                 to="/dashboard"
                 className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
@@ -190,6 +331,49 @@ const ProjectsPage: React.FC = () => {
               >
                 Projects
               </Link>
+            </div>
+
+            {/* CENTER: Prominent Voice Microphone - Only for paid subscriptions */}
+            {hasVoiceAccess && (
+              <div className="flex-1 flex justify-center">
+                <button
+                  onClick={handleVoiceActivation}
+                  className={`relative px-3 py-2 rounded-full transition-all duration-300 transform hover:scale-110 ${
+                    isListening
+                      ? 'bg-red-500/40 border-2 border-red-300 shadow-xl animate-pulse scale-110'
+                      : 'bg-white/30 border-2 border-white/40 hover:bg-white/40 hover:border-white/60 shadow-lg'
+                  }`}
+                  title={isListening ? "🎤 Listening..." : "🎤 Click to activate voice assistant"}
+                >
+                  <svg
+                    className={`w-5 h-5 transition-all duration-300 ${
+                      isListening ? 'text-red-100' : 'text-white drop-shadow-sm'
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                    />
+                  </svg>
+
+                  {/* Listening indicator with glow effect */}
+                  {isListening && (
+                    <>
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-400 rounded-full animate-ping"></div>
+                      <div className="absolute inset-0 bg-red-400/20 rounded-full animate-pulse"></div>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* RIGHT NAVIGATION */}
+            <div className="flex items-center space-x-6">
               <Link
                 to="/team"
                 className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"

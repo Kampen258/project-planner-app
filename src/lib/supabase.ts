@@ -1,13 +1,14 @@
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '../types'
+// Legacy compatibility wrapper for the enhanced Supabase client
+// This file maintains backward compatibility while using the new enhanced client
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Re-export everything from the enhanced client
+export * from './supabase.client';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables')
-  console.error('VITE_SUPABASE_URL:', supabaseUrl)
-  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Set' : 'Not set')
-}
+// Import the main client as the default export for backward compatibility
+import { supabase as enhancedSupabase } from './supabase.client';
 
-export const supabase = createClient<Database>(supabaseUrl || '', supabaseAnonKey || '')
+// Export as the legacy name for existing imports
+export const supabase = enhancedSupabase;
+
+// Also export as default for ES6 imports
+export default enhancedSupabase;

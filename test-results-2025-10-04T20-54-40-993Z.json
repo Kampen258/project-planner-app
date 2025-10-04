@@ -1,0 +1,72 @@
+{
+  "timestamp": "2025-10-04T20:54:40.993Z",
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "passRate": "100.0"
+  },
+  "tests": [
+    {
+      "name": "Vite Dev Server",
+      "status": "PASSED",
+      "message": "Running on port 5173",
+      "details": [
+        "React development server"
+      ]
+    },
+    {
+      "name": "MCP Bridge Server",
+      "status": "PASSED",
+      "message": "Running on port 3001",
+      "details": [
+        "Claude MCP bridge server"
+      ]
+    },
+    {
+      "name": "Landing Page",
+      "path": "/",
+      "status": "PASSED",
+      "message": "All content found",
+      "details": [
+        "Found: <div id=\"root\">, ProjectFlow"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "path": "/dashboard",
+      "status": "PASSED",
+      "message": "All content found",
+      "details": [
+        "Found: <div id=\"root\">, ProjectFlow"
+      ]
+    },
+    {
+      "name": "Projects Page",
+      "path": "/projects",
+      "status": "PASSED",
+      "message": "All content found",
+      "details": [
+        "Found: <div id=\"root\">, ProjectFlow"
+      ]
+    },
+    {
+      "name": "Team Page",
+      "path": "/team",
+      "status": "PASSED",
+      "message": "All content found",
+      "details": [
+        "Found: <div id=\"root\">, ProjectFlow"
+      ]
+    },
+    {
+      "name": "Profile Page",
+      "path": "/profile",
+      "status": "PASSED",
+      "message": "All content found",
+      "details": [
+        "Found: <div id=\"root\">, ProjectFlow"
+      ]
+    }
+  ]
+}

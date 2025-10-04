@@ -1,14 +1,15 @@
-import { supabase } from '../lib/supabase'
-import type { Project } from '../types'
+import { supabase } from '../lib/supabase.client'
+import type { Project, ProjectInsert, ProjectUpdate } from '../lib/database.types'
 
 export class ProjectService {
 
   // Get all projects for the current user
-  static async getAllProjects(): Promise<Project[]> {
+  static async getAllProjects(userId: string): Promise<Project[]> {
     try {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -24,12 +25,13 @@ export class ProjectService {
   }
 
   // Create a new project
-  static async createProject(projectData: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<Project | null> {
+  static async createProject(projectData: Omit<ProjectInsert, 'id' | 'created_at' | 'updated_at'>, userId: string): Promise<Project | null> {
     try {
       const { data, error } = await supabase
         .from('projects')
         .insert([{
           ...projectData,
+          user_id: userId,
           ai_generated: projectData.ai_generated || false,
           progress: projectData.progress || 0,
           status: projectData.status || 'planning'

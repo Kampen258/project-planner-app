@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { mcpClient, type MCPTask } from '../mcpClient'
-import type { Project } from '../mcpClient'
+import { mcpClient } from '../mcpClient'
+import type { MCPTask, Project } from '../mcpClient'
 
 interface ClaudeIntegrationProps {
   project: Project
@@ -41,7 +41,10 @@ export function ClaudeIntegration({ project, onTasksGenerated }: ClaudeIntegrati
       setTimeout(() => document.body.removeChild(notification), 3000)
 
     } catch (error) {
-      console.error('Failed to generate tasks:', error)
+      // Log error in development only
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to generate tasks:', error)
+      }
       alert('Failed to generate tasks. Please try again.')
     } finally {
       setIsGenerating(false)
@@ -130,7 +133,9 @@ export function ClaudeIntegration({ project, onTasksGenerated }: ClaudeIntegrati
             {/* Generate Button */}
             <div className="flex justify-center mb-6">
               <button
-                onClick={handleGenerateTasks}
+                onClick={() => {
+                  void handleGenerateTasks()
+                }}
                 disabled={isGenerating}
                 className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm text-white px-8 py-3 rounded-lg hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 border border-purple-400/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
               >

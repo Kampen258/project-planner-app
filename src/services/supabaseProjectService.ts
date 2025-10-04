@@ -1,36 +1,26 @@
 import { supabase } from '../lib/supabase';
+import type {
+  Project,
+  ProjectInsert,
+  ProjectUpdate,
+  Task,
+  TaskInsert,
+  TaskUpdate,
+  Constants
+} from '../lib/database.types';
 
-export interface SupabaseProject {
-  id?: string;
-  title: string;
-  description?: string;
-  start_date?: string;
-  end_date?: string;
-  status: 'planning' | 'in_progress' | 'completed' | 'on_hold';
-  progress: number;
-  tags?: string[];
-  user_id: string;
-  created_at?: string;
-  updated_at?: string;
-}
+// Use the convenient type aliases
+export type SupabaseProject = Project;
+export type SupabaseProjectInsert = ProjectInsert;
+export type SupabaseProjectUpdate = ProjectUpdate;
 
-export interface SupabaseTask {
-  id?: string;
-  project_id: string;
-  title: string;
-  description?: string;
-  status: 'todo' | 'in_progress' | 'completed';
-  priority?: 'low' | 'medium' | 'high';
-  assignee_id?: string;
-  due_date?: string;
-  completed_at?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+export type SupabaseTask = Task;
+export type SupabaseTaskInsert = TaskInsert;
+export type SupabaseTaskUpdate = TaskUpdate;
 
 export class SupabaseProjectService {
   // Project Methods
-  static async createProject(project: Omit<SupabaseProject, 'id' | 'created_at' | 'updated_at'>): Promise<SupabaseProject | null> {
+  static async createProject(project: SupabaseProjectInsert): Promise<SupabaseProject | null> {
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -55,13 +45,21 @@ export class SupabaseProjectService {
     }
   }
 
-  static async getProjects(userId: string): Promise<SupabaseProject[]> {
+  static async getProjects(userId?: string | null): Promise<SupabaseProject[]> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('projects')
         .select('*')
-        .eq('user_id', userId)
         .order('created_at', { ascending: false });
+
+      // If userId is provided, filter by it, otherwise get projects with null user_id
+      if (userId) {
+        query = query.eq('user_id', userId);
+      } else {
+        query = query.is('user_id', null);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching projects:', error);
@@ -75,7 +73,7 @@ export class SupabaseProjectService {
     }
   }
 
-  static async updateProject(id: string, updates: Partial<SupabaseProject>): Promise<SupabaseProject | null> {
+  static async updateProject(id: string, updates: SupabaseProjectUpdate): Promise<SupabaseProject | null> {
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -126,7 +124,7 @@ export class SupabaseProjectService {
   }
 
   // Task Methods
-  static async createTask(task: Omit<SupabaseTask, 'id' | 'created_at' | 'updated_at'>): Promise<SupabaseTask | null> {
+  static async createTask(task: SupabaseTaskInsert): Promise<SupabaseTask | null> {
     try {
       const { data, error } = await supabase
         .from('tasks')
@@ -176,7 +174,7 @@ export class SupabaseProjectService {
     }
   }
 
-  static async updateTask(id: string, updates: Partial<SupabaseTask>): Promise<SupabaseTask | null> {
+  static async updateTask(id: string, updates: SupabaseTaskUpdate): Promise<SupabaseTask | null> {
     try {
       const updateData: any = {
         ...updates,
@@ -227,18 +225,28 @@ export class SupabaseProjectService {
   }
 
   // Statistics and Analytics
-  static async getProjectStats(userId: string) {
+  static async getProjectStats(userId?: string | null) {
     try {
-      const [projectsResponse, tasksResponse] = await Promise.all([
-        supabase
-          .from('projects')
-          .select('status')
-          .eq('user_id', userId),
+      const projectsQuery = supabase
+        .from('projects')
+        .select('status');
 
-        supabase
-          .from('tasks')
-          .select('status, project_id, projects!inner(user_id)')
-          .eq('projects.user_id', userId)
+      const tasksQuery = supabase
+        .from('tasks')
+        .select('status, project_id, projects!inner(user_id)');
+
+      // Apply user filter if userId is provided
+      if (userId) {
+        projectsQuery.eq('user_id', userId);
+        tasksQuery.eq('projects.user_id', userId);
+      } else {
+        projectsQuery.is('user_id', null);
+        tasksQuery.is('projects.user_id', null);
+      }
+
+      const [projectsResponse, tasksResponse] = await Promise.all([
+        projectsQuery,
+        tasksQuery
       ]);
 
       const projects = projectsResponse.data || [];

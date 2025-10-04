@@ -1,0 +1,90 @@
+{
+  "timestamp": "2025-10-04T20:42:36.332Z",
+  "summary": {
+    "passed": 2,
+    "failed": 7,
+    "total": 9,
+    "passRate": "22.2"
+  },
+  "tests": [
+    {
+      "name": "Vite Dev Server",
+      "status": "PASSED",
+      "message": "Running on port 5173",
+      "details": [
+        "React development server"
+      ]
+    },
+    {
+      "name": "MCP Bridge Server",
+      "status": "PASSED",
+      "message": "Running on port 3001",
+      "details": [
+        "Claude MCP bridge server"
+      ]
+    },
+    {
+      "name": "Landing Page",
+      "path": "/",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Plan. Execute. Succeed"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "path": "/dashboard",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Dashboard, Projects"
+      ]
+    },
+    {
+      "name": "Projects Page",
+      "path": "/projects",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Projects"
+      ]
+    },
+    {
+      "name": "Team Page",
+      "path": "/team",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Team, team"
+      ]
+    },
+    {
+      "name": "Profile Page",
+      "path": "/profile",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Profile, profile"
+      ]
+    },
+    {
+      "name": "Project Creation",
+      "path": "/projects/new",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Create"
+      ]
+    },
+    {
+      "name": "Admin Setup",
+      "path": "/admin/setup",
+      "status": "FAILED",
+      "message": "Missing expected content",
+      "details": [
+        "Missing: Admin, Setup"
+      ]
+    }
+  ]
+}

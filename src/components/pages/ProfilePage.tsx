@@ -34,6 +34,19 @@ const ProfilePage: React.FC = () => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Debug logging
+  console.log('ProfilePage render - user:', user);
+
+  // If user is null, show loading or error state
+  if (!user) {
+    console.log('No user found, showing loading state');
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-400 flex items-center justify-center">
+        <div className="text-white text-xl">Loading profile...</div>
+      </div>
+    );
+  }
+
   const [activeTab, setActiveTab] = useState<'profile' | 'account' | 'security'>('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -41,13 +54,13 @@ const ProfilePage: React.FC = () => {
   const [error, setError] = useState('');
 
   const [profileData, setProfileData] = useState<ProfileData>({
-    firstName: user?.user_metadata?.first_name || '',
-    lastName: user?.user_metadata?.last_name || '',
-    email: user?.email || '',
-    bio: '',
-    location: '',
-    website: '',
-    profilePicture: user?.user_metadata?.avatar_url || ''
+    firstName: user?.user_metadata?.first_name || 'Demo',
+    lastName: user?.user_metadata?.last_name || 'User',
+    email: user?.email || 'demo@projectflow.com',
+    bio: 'I love using ProjectFlow to manage my projects and stay organized!',
+    location: 'San Francisco, CA',
+    website: 'https://projectflow.demo',
+    profilePicture: user?.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
   });
 
   const [accountSettings, setAccountSettings] = useState<AccountSettings>({
@@ -477,10 +490,11 @@ const ProfilePage: React.FC = () => {
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-400">
-      <Navigation />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  try {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-400">
+        <Navigation />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white">Profile & Settings</h1>
@@ -536,9 +550,21 @@ const ProfilePage: React.FC = () => {
             {activeTab === 'security' && renderSecurityTab()}
           </div>
         </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error('ProfilePage rendering error:', error);
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-400 flex items-center justify-center">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
+          <h2 className="text-2xl font-bold text-white mb-4">Profile Error</h2>
+          <p className="text-white/80">There was an error loading the profile page.</p>
+          <p className="text-white/60 text-sm mt-2">Check the browser console for details.</p>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default ProfilePage;

@@ -152,7 +152,7 @@ export function VoiceCommandsModal({ isOpen, onClose }: VoiceCommandsModalProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000] p-4">
       <div className="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b border-white/20">
           <div>

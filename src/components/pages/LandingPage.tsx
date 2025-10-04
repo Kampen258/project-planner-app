@@ -2,8 +2,7 @@ console.log('🏞️ LandingPage.tsx: Loading LandingPage component...');
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import Navigation from '../layout/Navigation';
+import { useAuth } from '../../contexts/SimpleAuthContext';
 
 console.log('📦 LandingPage.tsx: All imports loaded');
 
@@ -17,7 +16,8 @@ const LandingPage: React.FC = () => {
       {/* Navigation */}
       <nav className="bg-white/10 backdrop-blur-md border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex items-center h-16">
+            {/* LEFT: Logo */}
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">P</span>
@@ -25,7 +25,8 @@ const LandingPage: React.FC = () => {
               <span className="text-xl font-bold text-white">ProjectFlow</span>
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* RIGHT: Login Button */}
+            <div className="flex-1 flex justify-end">
               <Link
                 to="/login"
                 className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white px-6 py-2 hover:bg-white/15 transition-all duration-300 text-sm font-medium"
