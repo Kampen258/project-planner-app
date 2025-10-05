@@ -1,10 +1,49 @@
 import { supabase } from '../lib/supabase.client'
-import type { Task, TaskInsert, TaskUpdate } from '../lib/database.types'
+import type { Task, TaskInsert, TaskUpdate, DbTask, DbTaskInsert } from '../types'
 
 // Type for task with user context
 export interface TaskWithProject extends Task {
   project_name?: string;
   project_status?: string;
+}
+
+// Helper function to convert database task to component task
+function transformSupabaseTask(dbTask: DbTask): Task {
+  return {
+    id: dbTask.id,
+    project_id: dbTask.project_id,
+    name: dbTask.name,
+    description: dbTask.description,
+    due_date: dbTask.due_date,
+    priority: dbTask.priority,
+    status: dbTask.status,
+    completed: dbTask.completed,
+    created_at: dbTask.created_at,
+    updated_at: dbTask.updated_at,
+    user_id: dbTask.user_id,
+    ai_suggested: dbTask.ai_suggested,
+    order_index: dbTask.order_index,
+    assigned_to: dbTask.assigned_to,
+    completed_at: dbTask.completed_at,
+  };
+}
+
+// Helper function to convert component task to database insert
+function transformToSupabaseTask(task: Partial<Task>): Partial<DbTaskInsert> {
+  const dbInsert: Partial<DbTaskInsert> = {
+    project_id: task.project_id,
+    name: task.name,
+    description: task.description,
+    due_date: task.due_date,
+    priority: task.priority,
+    status: task.status,
+    completed: task.completed,
+    user_id: task.user_id,
+    ai_suggested: task.ai_suggested,
+    order_index: task.order_index,
+    assigned_to: task.assigned_to,
+  };
+  return dbInsert;
 }
 
 export class TaskService {
@@ -134,8 +173,32 @@ export class TaskService {
     }
   }
 
+  // Get all tasks for a project (simplified version)
+  static async getTasks(projectId: string): Promise<Task[]> {
+    try {
+      console.log(`🔍 Fetching tasks for project: ${projectId}`)
+
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('order_index', { ascending: true })
+
+      if (error) {
+        console.error('❌ Error fetching tasks:', error)
+        return []
+      }
+
+      console.log(`✅ Retrieved ${data?.length || 0} tasks from database`)
+      return (data || []).map(transformSupabaseTask)
+    } catch (error) {
+      console.error('❌ Error in getTasks:', error)
+      return []
+    }
+  }
+
   // Get task statistics for a project
-  static async getProjectTaskStats(projectId: string): Promise<{
+  static async getProjectTaskStats(projectId: string, userId?: string): Promise<{
     total: number
     completed: number
     inProgress: number
@@ -143,7 +206,9 @@ export class TaskService {
     overdue: number
   }> {
     try {
-      const tasks = await this.getTasksByProject(projectId)
+      const tasks = userId
+        ? await this.getTasksByProject(projectId, userId)
+        : await this.getTasks(projectId)
       const now = new Date()
 
       const stats = {

@@ -1,7 +1,49 @@
 import { supabase } from '../lib/supabase.client'
-import type { Project, ProjectInsert, ProjectUpdate } from '../lib/database.types'
+import type { Project, ProjectInsert, ProjectUpdate, DbProject, DbProjectInsert } from '../types'
 
 export class ProjectService {
+
+  // Helper function to convert database project to component project
+  private static mapDbToProject(dbProject: DbProject): Project {
+    return {
+      id: dbProject.id,
+      title: dbProject.name, // Map name -> title
+      description: dbProject.description,
+      start_date: dbProject.start_date,
+      due_date: dbProject.end_date, // Map end_date -> due_date
+      status: dbProject.status,
+      progress: dbProject.progress,
+      tags: dbProject.tags,
+      created_at: dbProject.created_at,
+      updated_at: dbProject.updated_at,
+      user_id: dbProject.user_id,
+      team_members: dbProject.team_members,
+      ai_generated: dbProject.ai_generated,
+      metadata: {
+        context: dbProject.context,
+        success_score: dbProject.success_score,
+      },
+    };
+  }
+
+  // Helper function to convert component project to database insert
+  private static mapProjectToDbInsert(project: Partial<Project>): DbProjectInsert {
+    const dbInsert: DbProjectInsert = {
+      name: project.title!, // Map title -> name
+      description: project.description,
+      start_date: project.start_date,
+      end_date: project.due_date, // Map due_date -> end_date
+      status: project.status,
+      progress: project.progress,
+      tags: project.tags,
+      user_id: project.user_id,
+      team_members: project.team_members,
+      ai_generated: project.ai_generated,
+      context: project.metadata?.context,
+      success_score: project.metadata?.success_score,
+    };
+    return dbInsert;
+  }
 
   // Get all projects for the current user
   static async getAllProjects(userId: string): Promise<Project[]> {
@@ -17,7 +59,7 @@ export class ProjectService {
         return []
       }
 
-      return data || []
+      return (data || []).map(this.mapDbToProject)
     } catch (error) {
       console.error('Error in getAllProjects:', error)
       return []
@@ -25,17 +67,19 @@ export class ProjectService {
   }
 
   // Create a new project
-  static async createProject(projectData: Omit<ProjectInsert, 'id' | 'created_at' | 'updated_at'>, userId: string): Promise<Project | null> {
+  static async createProject(projectData: Partial<Project>): Promise<Project | null> {
     try {
+      // Convert component project to database insert format
+      const dbInsert = this.mapProjectToDbInsert({
+        ...projectData,
+        ai_generated: projectData.ai_generated || false,
+        progress: projectData.progress || 0,
+        status: projectData.status || 'planning'
+      });
+
       const { data, error } = await supabase
         .from('projects')
-        .insert([{
-          ...projectData,
-          user_id: userId,
-          ai_generated: projectData.ai_generated || false,
-          progress: projectData.progress || 0,
-          status: projectData.status || 'planning'
-        }])
+        .insert([dbInsert])
         .select()
         .single()
 
@@ -44,7 +88,7 @@ export class ProjectService {
         return null
       }
 
-      return data
+      return this.mapDbToProject(data)
     } catch (error) {
       console.error('Error in createProject:', error)
       return null
@@ -110,7 +154,7 @@ export class ProjectService {
         return null
       }
 
-      return data
+      return this.mapDbToProject(data)
     } catch (error) {
       console.error('Error in getProject:', error)
       return null
