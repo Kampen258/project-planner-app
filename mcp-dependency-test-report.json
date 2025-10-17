@@ -1,0 +1,677 @@
+{
+  "timestamp": "2025-10-08T15:53:40.190Z",
+  "summary": {
+    "totalIssues": 5,
+    "healthScore": 25,
+    "totalDuration": 38,
+    "testsFailed": 5,
+    "testsRun": 63
+  },
+  "detailed": {
+    "importAnalysis": [
+      {
+        "file": "src/components/ChatDropdown.tsx",
+        "problematicImports": [
+          "import { claudeService } from '../services/claudeService'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import { claudeService } from '../services/claudeService'"
+      },
+      {
+        "file": "src/components/ClaudeIntegration.tsx",
+        "problematicImports": [
+          "import { mcpClient } from '../mcpClient'",
+          "import type { MCPTask, Project } from '../mcpClient'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import { mcpClient } from '../mcpClient', import type { MCPTask, Project } from '../mcpClient'"
+      },
+      {
+        "file": "src/components/EnhancedClaudeIntegration.tsx",
+        "problematicImports": [
+          "import { mcpClient } from '../mcpClient'",
+          "import type { MCPTask, Project } from '../mcpClient'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import { mcpClient } from '../mcpClient', import type { MCPTask, Project } from '../mcpClient'"
+      },
+      {
+        "file": "src/components/ProjectDetailView.tsx",
+        "problematicImports": [
+          "import type { Project, MCPTask, ProjectMetadata } from '../mcpClient'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import type { Project, MCPTask, ProjectMetadata } from '../mcpClient'"
+      },
+      {
+        "file": "src/components/ProjectMetadataForm.tsx",
+        "problematicImports": [
+          "import type { ProjectMetadata, Project } from '../mcpClient'",
+          "import { MetadataAIService, type ProjectContext } from '../services/metadataAIService'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import type { ProjectMetadata, Project } from '../mcpClient', import { MetadataAIService, type ProjectContext } from '../services/metadataAIService'"
+      },
+      {
+        "file": "src/components/VoiceAssistant.tsx",
+        "problematicImports": [
+          "import { VoiceAssistantService } from '../services/voiceAssistantService'",
+          "import type { Project } from '../mcpClient'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import { VoiceAssistantService } from '../services/voiceAssistantService', import type { Project } from '../mcpClient'"
+      },
+      {
+        "file": "src/components/VoiceAssistantStatus.tsx",
+        "problematicImports": [
+          "import type { Project } from '../mcpClient'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import type { Project } from '../mcpClient'"
+      },
+      {
+        "file": "src/components/pages/ClaudeIntegrationTestPage.tsx",
+        "problematicImports": [
+          "import type { MCPTask } from '../../mcpClient'"
+        ],
+        "severity": "medium",
+        "recommendation": "Consider lazy loading or conditional imports for: import type { MCPTask } from '../../mcpClient'"
+      },
+      {
+        "file": "src/services/aiContextService.ts",
+        "problematicImports": [
+          "import { Document } from './documentService'"
+        ],
+        "severity": "high",
+        "recommendation": "Consider lazy loading or conditional imports for: import { Document } from './documentService'"
+      },
+      {
+        "file": "src/services/claudeService.ts",
+        "problematicImports": [
+          "import { documentService } from './documentService'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import { documentService } from './documentService'"
+      },
+      {
+        "file": "src/services/metadataAIService.ts",
+        "problematicImports": [
+          "import { mcpClient } from '../mcpClient'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import { mcpClient } from '../mcpClient'"
+      },
+      {
+        "file": "src/services/syncService.ts",
+        "problematicImports": [
+          "import type { Project } from '../mcpClient'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import type { Project } from '../mcpClient'"
+      },
+      {
+        "file": "src/services/voiceAssistantService.ts",
+        "problematicImports": [
+          "import { mcpClient, type Project } from '../mcpClient'",
+          "import { MetadataAIService } from './metadataAIService'"
+        ],
+        "severity": "low",
+        "recommendation": "Consider lazy loading or conditional imports for: import { mcpClient, type Project } from '../mcpClient', import { MetadataAIService } from './metadataAIService'"
+      }
+    ],
+    "serviceIsolation": [
+      {
+        "service": "src/services/claudeService.ts",
+        "status": "analyzed",
+        "hasImmediateExecution": true,
+        "hasMCPDependency": false,
+        "hasDBDependency": true,
+        "canImport": false,
+        "riskLevel": "critical",
+        "recommendation": "Wrap immediate execution in functions or add error handling"
+      },
+      {
+        "service": "src/services/documentService.ts",
+        "status": "analyzed",
+        "hasImmediateExecution": true,
+        "hasMCPDependency": false,
+        "hasDBDependency": true,
+        "canImport": false,
+        "riskLevel": "critical",
+        "recommendation": "Wrap immediate execution in functions or add error handling"
+      },
+      {
+        "service": "src/services/voiceAssistantService.ts",
+        "status": "analyzed",
+        "hasImmediateExecution": true,
+        "hasMCPDependency": true,
+        "hasDBDependency": false,
+        "canImport": false,
+        "riskLevel": "critical",
+        "recommendation": "Wrap immediate execution in functions or add error handling"
+      },
+      {
+        "service": "src/services/metadataAIService.ts",
+        "status": "analyzed",
+        "hasImmediateExecution": true,
+        "hasMCPDependency": true,
+        "hasDBDependency": false,
+        "canImport": false,
+        "riskLevel": "critical",
+        "recommendation": "Wrap immediate execution in functions or add error handling"
+      },
+      {
+        "service": "src/services/braindumpService.ts",
+        "status": "analyzed",
+        "hasImmediateExecution": true,
+        "hasMCPDependency": false,
+        "hasDBDependency": true,
+        "canImport": false,
+        "riskLevel": "critical",
+        "recommendation": "Wrap immediate execution in functions or add error handling"
+      }
+    ],
+    "agentImplementation": [
+      {
+        "file": "src/App-comprehensive.tsx",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": false,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Add comprehensive error handling; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/ChatDropdown.tsx",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Implement graceful degradation"
+      },
+      {
+        "file": "src/components/ClaudeIntegration.tsx",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/DiagnosticSystem.tsx",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": true,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/EnhancedClaudeIntegration.tsx",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/EnhancedVoiceAssistant.tsx",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Implement graceful degradation"
+      },
+      {
+        "file": "src/components/ErrorBoundary.tsx",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": false,
+        "hasGracefulDegradation": true,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Add comprehensive error handling"
+      },
+      {
+        "file": "src/components/HomePage.tsx",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": false,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Add comprehensive error handling; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/ProjectDetailView.tsx",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/ProjectMetadataForm.tsx",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/VoiceAssistant.tsx",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/VoiceAssistantStatus.tsx",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/VoiceCommandsModal.tsx",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": true,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Agent implementation appears robust"
+      },
+      {
+        "file": "src/components/pages/ClaudeIntegrationTestPage.tsx",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/components/pages/DebugTestingPage.tsx",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Implement graceful degradation"
+      },
+      {
+        "file": "src/components/projects/EnhancedAIProjectCreation.tsx",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Implement graceful degradation"
+      },
+      {
+        "file": "src/mcpClient.ts",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": true,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/services/aiService.ts",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": true,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Implement graceful degradation"
+      },
+      {
+        "file": "src/services/automated-task-creation-service.ts",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Implement graceful degradation"
+      },
+      {
+        "file": "src/services/braindumpService.ts",
+        "requiresMCPBridge": false,
+        "requiresDatabase": true,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": true,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add database fallback handling"
+      },
+      {
+        "file": "src/services/claudeService.ts",
+        "requiresMCPBridge": false,
+        "requiresDatabase": true,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": true,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add database fallback handling"
+      },
+      {
+        "file": "src/services/metadataAIService.ts",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": true,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks"
+      },
+      {
+        "file": "src/services/modern-claude-service.ts",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Implement graceful degradation"
+      },
+      {
+        "file": "src/services/syncService.ts",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/services/voiceAssistantService.ts",
+        "requiresMCPBridge": true,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": false,
+        "riskLevel": "medium",
+        "recommendation": "Add MCP bridge connectivity checks; Implement graceful degradation"
+      },
+      {
+        "file": "src/types/global.d.ts",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": false,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Add comprehensive error handling; Implement graceful degradation"
+      },
+      {
+        "file": "src/utils/debug-logger.ts",
+        "requiresMCPBridge": false,
+        "requiresDatabase": false,
+        "requiresExternalAPI": false,
+        "hasErrorHandling": true,
+        "hasGracefulDegradation": false,
+        "canWorkOffline": true,
+        "riskLevel": "low",
+        "recommendation": "Implement graceful degradation"
+      }
+    ],
+    "databaseDependencies": [
+      {
+        "file": "src/App-basic.tsx",
+        "referencedTables": [
+          "projects"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/App-simple-working.tsx",
+        "referencedTables": [
+          "projects"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/components/HomePage.tsx",
+        "referencedTables": [
+          "projects"
+        ],
+        "hasErrorHandling": false,
+        "hasGracefulFallback": false,
+        "riskLevel": "medium",
+        "recommendation": "Add error handling for database operations"
+      },
+      {
+        "file": "src/components/VoiceAssistantStatus.tsx",
+        "referencedTables": [
+          "projects"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": false,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/components/braindump/ReviewInterfaceComponent.tsx",
+        "referencedTables": [
+          "tasks"
+        ],
+        "hasErrorHandling": false,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": "Add error handling for database operations"
+      },
+      {
+        "file": "src/components/pages/Dashboard.tsx",
+        "referencedTables": [
+          "projects",
+          "tasks"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/contexts/SupabaseAuthContext.tsx",
+        "referencedTables": [
+          "users"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/lib/database.types.ts",
+        "referencedTables": [
+          "projects",
+          "tasks",
+          "users"
+        ],
+        "hasErrorHandling": false,
+        "hasGracefulFallback": false,
+        "riskLevel": "high",
+        "recommendation": "Add error handling for database operations; Consider service abstraction layer"
+      },
+      {
+        "file": "src/lib/supabase.client.ts",
+        "referencedTables": [
+          "projects"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/services/aiContextService.ts",
+        "referencedTables": [
+          "documents",
+          "projects",
+          "tasks",
+          "users"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": false,
+        "riskLevel": "medium",
+        "recommendation": "Check if document tables exist before use; Consider service abstraction layer"
+      },
+      {
+        "file": "src/services/braindumpService.ts",
+        "referencedTables": [
+          "documents",
+          "uploaded_documents",
+          "tasks"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": "Check if document tables exist before use; Consider service abstraction layer"
+      },
+      {
+        "file": "src/services/claudeService.ts",
+        "referencedTables": [
+          "projects",
+          "tasks"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/services/documentService.ts",
+        "referencedTables": [
+          "documents",
+          "document_templates",
+          "document_versions",
+          "projects",
+          "tasks"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": "Check if document tables exist before use; Consider service abstraction layer"
+      },
+      {
+        "file": "src/services/projectService.ts",
+        "referencedTables": [
+          "projects"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": false,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/services/supabaseProjectService.ts",
+        "referencedTables": [
+          "projects",
+          "tasks"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": false,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/services/taskService.ts",
+        "referencedTables": [
+          "tasks"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": false,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/services/voiceAssistantService.ts",
+        "referencedTables": [
+          "projects"
+        ],
+        "hasErrorHandling": true,
+        "hasGracefulFallback": true,
+        "riskLevel": "medium",
+        "recommendation": ""
+      },
+      {
+        "file": "src/types.ts",
+        "referencedTables": [
+          "projects",
+          "tasks"
+        ],
+        "hasErrorHandling": false,
+        "hasGracefulFallback": false,
+        "riskLevel": "high",
+        "recommendation": "Add error handling for database operations"
+      }
+    ]
+  },
+  "conclusions": [
+    "MCP Client and Agent implementations are the primary cause of silent React failures",
+    "Services with immediate execution cannot be safely imported",
+    "Database operations need existence checks before table access",
+    "Agent implementations require comprehensive error handling"
+  ]
+}

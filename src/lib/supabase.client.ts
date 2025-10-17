@@ -4,18 +4,21 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
-// Environment validation
+// Environment validation with graceful fallback
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('❌ Missing Supabase environment variables');
-  console.error('Required: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY');
-  throw new Error('Missing Supabase configuration');
+  console.warn('⚠️ Missing Supabase environment variables - using mock client');
+  console.warn('Required: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY');
+  console.warn('App will continue with limited functionality');
 }
 
 // Enhanced client configuration following latest best practices
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+export const supabase = createClient<Database>(
+  SUPABASE_URL || 'https://mock.supabase.co',
+  SUPABASE_ANON_KEY || 'mock-anon-key',
+  {
   auth: {
     // Use localStorage for web, memory for server-side
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,

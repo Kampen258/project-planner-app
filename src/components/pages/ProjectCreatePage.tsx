@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import { useVoiceCommands } from '../../contexts/VoiceCommandsContext';
+import Navigation from '../common/Navigation';
 import BraindumpOrchestrator from '../braindump/BraindumpOrchestrator';
 
 interface ProjectFormData {
@@ -30,12 +31,6 @@ const ProjectCreatePage: React.FC = () => {
     budget: ''
   });
 
-  const handleSignOut = () => {
-    navigate('/');
-  };
-
-  // Pro/Admin users have full access to voice features
-  const hasVoiceAccess = user?.email === 'edovankampen@outlook.com' || user?.email === 'admin@projectflow.com';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -222,87 +217,7 @@ const ProjectCreatePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-400">
       {/* Navigation */}
-      <nav className="bg-white/10 backdrop-blur-md border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16">
-            {/* LEFT: Logo */}
-            <div className="flex items-center space-x-2">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">P</span>
-                </div>
-                <span className="text-xl font-bold text-white">ProjectFlow</span>
-              </Link>
-            </div>
-
-            {/* LEFT NAVIGATION */}
-            <div className="hidden md:flex items-center space-x-6 ml-8">
-              <Link
-                to="/dashboard"
-                className="text-white/90 hover:text-white transition-colors px-3 py-2 rounded-lg font-medium hover:bg-white/10"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/projects"
-                className="text-white hover:text-white transition-colors px-3 py-2 rounded-lg font-medium bg-white/20"
-              >
-                Projects
-              </Link>
-            </div>
-
-            {/* CENTER: Voice Microphone */}
-            {hasVoiceAccess && (
-              <div className="flex-1 flex justify-center">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleVoiceCommands();
-                  }}
-                  className="relative px-3 py-2 rounded-full transition-all duration-300 transform hover:scale-110 bg-white/30 border-2 border-white/40 hover:bg-white/40 hover:border-white/60 shadow-lg"
-                  title="🎤 Click to open voice commands menu"
-                >
-                  <svg
-                    className="w-5 h-5 transition-all duration-300 text-white drop-shadow-sm"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            )}
-
-            {/* RIGHT NAVIGATION */}
-            <div className="flex items-center space-x-6">
-              <Link
-                to="/team"
-                className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
-              >
-                Team
-              </Link>
-              <Link
-                to="/profile"
-                className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
-              >
-                Profile
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white px-4 py-2 hover:bg-white/15 transition-all duration-300 text-sm font-medium"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

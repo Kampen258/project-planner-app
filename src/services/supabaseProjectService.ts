@@ -22,31 +22,119 @@ export class SupabaseProjectService {
   // Project Methods
   static async createProject(project: SupabaseProjectInsert): Promise<SupabaseProject | null> {
     try {
+      console.log('🏗️ [SupabaseProjectService] Creating project:', project.name);
+      console.log('🏗️ [SupabaseProjectService] Project data:', project);
+
+      const projectData = {
+        ...project,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('🏗️ [SupabaseProjectService] Inserting with data:', projectData);
+
       const { data, error } = await supabase
         .from('projects')
-        .insert({
-          ...project,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
+        .insert(projectData)
         .select()
         .single();
 
+      console.log('🏗️ [SupabaseProjectService] Insert response - Error:', error);
+      console.log('🏗️ [SupabaseProjectService] Insert response - Data:', data);
+
       if (error) {
-        console.error('Error creating project:', error);
+        console.error('❌ [SupabaseProjectService] Database error creating project:', error);
+        console.error('❌ [SupabaseProjectService] Error details:', JSON.stringify(error, null, 2));
         throw error;
       }
 
-      console.log('Project created successfully:', data);
+      console.log('✅ [SupabaseProjectService] Project created successfully:', data);
       return data;
     } catch (error) {
-      console.error('Error in createProject:', error);
+      console.error('❌ [SupabaseProjectService] Service error in createProject:', error);
       return null;
+    }
+  }
+
+  // Method to create sample projects (for testing)
+  static async createSampleProjects(userId: string): Promise<boolean> {
+    try {
+      console.log('🏗️ [SupabaseProjectService] Creating sample projects...');
+
+      const sampleProjects = [
+        {
+          name: 'PromptWise AI Platform',
+          description: 'Building an AI-powered platform for intelligent prompt engineering and optimization',
+          status: 'in_progress' as const,
+          progress: 65,
+          tags: ['ai', 'platform', 'saas'],
+          user_id: userId,
+          start_date: '2024-01-15',
+          end_date: '2024-12-31'
+        },
+        {
+          name: 'Mobile App Redesign',
+          description: 'Complete redesign of our mobile application with modern UI/UX principles',
+          status: 'planning' as const,
+          progress: 25,
+          tags: ['mobile', 'ui-ux', 'redesign'],
+          user_id: userId,
+          start_date: '2024-11-01',
+          end_date: '2024-03-15'
+        },
+        {
+          name: 'E-commerce Integration',
+          description: 'Integrate payment processing and inventory management systems',
+          status: 'completed' as const,
+          progress: 100,
+          tags: ['ecommerce', 'payments', 'integration'],
+          user_id: userId,
+          start_date: '2024-08-01',
+          end_date: '2024-10-30'
+        }
+      ];
+
+      const results = [];
+      for (const project of sampleProjects) {
+        const result = await this.createProject(project);
+        results.push(result);
+        console.log('✅ Created project:', project.name);
+      }
+
+      console.log('🎉 [SupabaseProjectService] Created', results.filter(r => r).length, 'sample projects');
+      return results.filter(r => r).length > 0;
+    } catch (error) {
+      console.error('❌ [SupabaseProjectService] Error creating sample projects:', error);
+      return false;
+    }
+  }
+
+  // Method to get absolutely all projects (for debugging)
+  static async getAllProjectsDebug(): Promise<SupabaseProject[]> {
+    try {
+      console.log('🔧 [SupabaseProjectService] DEBUG: Getting ALL projects in database...');
+
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*');
+
+      console.log('🔧 [SupabaseProjectService] DEBUG: Raw query result');
+      console.log('🔧 [SupabaseProjectService] DEBUG: Error:', error);
+      console.log('🔧 [SupabaseProjectService] DEBUG: Total projects in DB:', data?.length || 0);
+      console.log('🔧 [SupabaseProjectService] DEBUG: Sample projects:', data?.slice(0, 3));
+
+      return data || [];
+    } catch (error) {
+      console.error('🔧 [SupabaseProjectService] DEBUG: Error getting all projects:', error);
+      return [];
     }
   }
 
   static async getProjects(userId?: string | null): Promise<SupabaseProject[]> {
     try {
+      console.log('🔍 [SupabaseProjectService] Starting getProjects query...');
+      console.log('🔍 [SupabaseProjectService] User ID provided:', userId);
+
       let query = supabase
         .from('projects')
         .select('*')
@@ -54,21 +142,31 @@ export class SupabaseProjectService {
 
       // If userId is provided, filter by it, otherwise get projects with null user_id
       if (userId) {
+        console.log('🔍 [SupabaseProjectService] Filtering by user_id:', userId);
         query = query.eq('user_id', userId);
       } else {
+        console.log('🔍 [SupabaseProjectService] Getting projects with null user_id');
         query = query.is('user_id', null);
       }
 
+      console.log('🔍 [SupabaseProjectService] Executing query...');
       const { data, error } = await query;
 
+      console.log('🔍 [SupabaseProjectService] Query completed');
+      console.log('🔍 [SupabaseProjectService] Error:', error);
+      console.log('🔍 [SupabaseProjectService] Data:', data);
+      console.log('🔍 [SupabaseProjectService] Data length:', data?.length || 0);
+
       if (error) {
-        console.error('Error fetching projects:', error);
+        console.error('❌ [SupabaseProjectService] Database error:', error);
         throw error;
       }
 
-      return data || [];
+      const result = data || [];
+      console.log('✅ [SupabaseProjectService] Returning', result.length, 'projects');
+      return result;
     } catch (error) {
-      console.error('Error in getProjects:', error);
+      console.error('❌ [SupabaseProjectService] Service error:', error);
       return [];
     }
   }

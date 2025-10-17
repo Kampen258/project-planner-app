@@ -1,19 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
-// Enhanced AuthContext with optional Supabase integration and bulletproof fallbacks
+// Temporarily disable Supabase to test if this is causing Vite hang
 let supabase: any = null;
 
-// Safely import Supabase with fallback
-try {
-  import('../lib/supabase.client').then(supabaseModule => {
-    supabase = supabaseModule.supabase;
-    console.log('✅ Supabase client loaded successfully');
-  }).catch(error => {
-    console.warn('⚠️ Supabase client failed to load, using mock auth:', error.message);
-  });
-} catch (error) {
-  console.warn('⚠️ Supabase client failed to load, using mock auth:', error.message);
-}
+// TODO: Re-enable Supabase import after testing
+// try {
+//   import('../lib/supabase.client').then((module) => {
+//     supabase = module.supabase;
+//     console.log('✅ Supabase client loaded successfully');
+//   }).catch(() => {
+//     console.warn('⚠️ Supabase client not available, using mock auth');
+//   });
+// } catch {
+//   console.warn('⚠️ Supabase client not available, using mock auth');
+// }
+
+console.log('🎭 Using mock auth (Supabase disabled for testing)');
 
 export type RoleType = 'admin' | 'user' | 'moderator';
 
@@ -60,7 +62,7 @@ interface SimpleAuthProviderProps {
 export const SimpleAuthProvider: React.FC<SimpleAuthProviderProps> = ({ children }) => {
   // Mock user for testing - no external dependencies
   const mockUser: User = {
-    id: '57fdae24-68cb-4000-9a4d-a1abfb5e4430',
+    id: 'bbb7e0a8-59b7-4486-b03b-b36e9317e26b',
     email: 'edovankampen@outlook.com',
     name: 'Edo van Kampen'
   };

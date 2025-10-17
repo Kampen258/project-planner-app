@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Projects Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .debug-panel { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .error { color: red; background: #ffe6e6; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .success { color: green; background: #e6ffe6; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .info { color: blue; background: #e6f2ff; padding: 10px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>ProjectsPage Debug Console</h1>
+
+    <div class="debug-panel">
+        <h2>JavaScript Console Output</h2>
+        <div id="console-output"></div>
+    </div>
+
+    <div class="debug-panel">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleOutput = document.getElementById('console-output');
+        const testResults = document.getElementById('test-results');
+
+        function addToConsole(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            consoleOutput.appendChild(div);
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'info');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+
+        // Test the projects page directly
+        async function testProjectsPage() {
+            try {
+                addToConsole('Starting ProjectsPage debug test...', 'info');
+
+                // Test if we can access the projects page
+                const response = await fetch('http://localhost:5173/projects');
+                addToConsole(`Projects page response status: ${response.status}`, response.ok ? 'success' : 'error');
+
+                if (!response.ok) {
+                    addToConsole('Failed to load projects page', 'error');
+                    return;
+                }
+
+                const html = await response.text();
+                addToConsole(`Projects page HTML length: ${html.length} characters`, 'success');
+
+                // Check for common error patterns
+                if (html.includes('Error')) {
+                    addToConsole('Found "Error" in page HTML - possible JavaScript error', 'error');
+                }
+
+                if (html.includes('Cannot resolve')) {
+                    addToConsole('Found "Cannot resolve" in page HTML - possible import error', 'error');
+                }
+
+                if (html.includes('ProjectFlow')) {
+                    addToConsole('Found "ProjectFlow" in page HTML - basic content loaded', 'success');
+                }
+
+                // Test direct API access
+                addToConsole('Testing direct API access...', 'info');
+
+                // This will show CORS error in browser but that's expected
+                try {
+                    const apiResponse = await fetch('http://localhost:3001/health');
+                    addToConsole(`MCP Bridge health check: ${apiResponse.status}`, 'success');
+                } catch (apiError) {
+                    addToConsole(`MCP Bridge error (expected CORS): ${apiError.message}`, 'info');
+                }
+
+                addToConsole('Debug test completed', 'success');
+
+            } catch (error) {
+                addToConsole(`Debug test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Run the test
+        testProjectsPage();
+
+        // Add a button to reload projects page
+        const button = document.createElement('button');
+        button.textContent = 'Open Projects Page in New Tab';
+        button.onclick = () => window.open('http://localhost:5173/projects', '_blank');
+        button.style.padding = '10px 20px';
+        button.style.margin = '10px 0';
+        button.style.fontSize = '16px';
+        testResults.appendChild(button);
+
+        // Add refresh button
+        const refreshButton = document.createElement('button');
+        refreshButton.textContent = 'Run Test Again';
+        refreshButton.onclick = () => {
+            consoleOutput.innerHTML = '';
+            testProjectsPage();
+        };
+        refreshButton.style.padding = '10px 20px';
+        refreshButton.style.margin = '10px';
+        refreshButton.style.fontSize = '16px';
+        testResults.appendChild(refreshButton);
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+Found 131 TypeScript/JavaScript files to analyze
+
+=== DEPENDENCY ANALYSIS ===
+✅ No circular dependencies found!
+
+=== SUMMARY ===
+Total files analyzed: 131
+Files with dependencies: 95
+Circular dependency chains found: 0
+
+=== FILES WITH MOST DEPENDENCIES ===
+18 deps: src/App-comprehensive.tsx
+14 deps: src/services/safeAILoader.ts
+11 deps: src/App.tsx
+10 deps: src/App-bulletproof.tsx
+10 deps: src/components/pages/ProjectDetailsPage.tsx
+9 deps: src/App-full.tsx
+8 deps: src/components/braindump/BraindumpOrchestrator.tsx
+8 deps: src/components/pages/ClaudeIntegrationTestPage.tsx
+6 deps: src/components/ProjectDetailView.tsx
+6 deps: src/components/pages/HomePage-Planner.tsx

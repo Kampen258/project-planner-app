@@ -18,6 +18,7 @@ export interface Project {
   user_id: string | null;
   team_members: string[] | null;
   ai_generated: boolean | null;
+  objective_id?: string | null; // Link to OKR objective
   metadata?: {
     template?: string;
     priority?: 'low' | 'medium' | 'high';
@@ -164,6 +165,136 @@ export type {
   Database,
   Json
 } from './lib/database.types';
+
+// OKR (Objectives & Key Results) Types for New Agile Methodology
+
+// Objective type - what teams want to achieve
+export interface Objective {
+  id: string;
+  title: string;
+  description?: string;
+  quarter: 1 | 2 | 3 | 4;
+  year: number;
+  owner_id: string;
+  project_id?: string;
+  status: 'draft' | 'active' | 'completed' | 'cancelled';
+  created_at: string;
+  updated_at: string;
+  key_results?: KeyResult[];
+}
+
+// Key Result type - measurable outcomes for objectives
+export interface KeyResult {
+  id: string;
+  objective_id: string;
+  title: string;
+  description?: string;
+  baseline: number;
+  target: number;
+  current_value: number;
+  unit: string;
+  measurement_frequency: 'daily' | 'weekly' | 'monthly';
+  status: 'active' | 'completed' | 'at_risk' | 'blocked';
+  created_at: string;
+  updated_at: string;
+  updates?: KeyResultUpdate[];
+}
+
+// Key Result Update type - progress tracking over time
+export interface KeyResultUpdate {
+  id: string;
+  key_result_id: string;
+  value: number;
+  note?: string;
+  updated_by: string;
+  created_at: string;
+}
+
+// OKR insert types for creating new records
+export interface ObjectiveInsert {
+  id?: string;
+  title: string;
+  description?: string;
+  quarter: 1 | 2 | 3 | 4;
+  year: number;
+  owner_id: string;
+  project_id?: string;
+  status?: 'draft' | 'active' | 'completed' | 'cancelled';
+}
+
+export interface KeyResultInsert {
+  id?: string;
+  objective_id: string;
+  title: string;
+  description?: string;
+  baseline?: number;
+  target: number;
+  current_value?: number;
+  unit?: string;
+  measurement_frequency?: 'daily' | 'weekly' | 'monthly';
+  status?: 'active' | 'completed' | 'at_risk' | 'blocked';
+}
+
+export interface KeyResultUpdateInsert {
+  key_result_id: string;
+  value: number;
+  note?: string;
+  updated_by: string;
+}
+
+// OKR update types for modifying existing records
+export interface ObjectiveUpdate {
+  title?: string;
+  description?: string;
+  quarter?: 1 | 2 | 3 | 4;
+  year?: number;
+  owner_id?: string;
+  project_id?: string;
+  status?: 'draft' | 'active' | 'completed' | 'cancelled';
+}
+
+export interface KeyResultUpdate {
+  title?: string;
+  description?: string;
+  baseline?: number;
+  target?: number;
+  current_value?: number;
+  unit?: string;
+  measurement_frequency?: 'daily' | 'weekly' | 'monthly';
+  status?: 'active' | 'completed' | 'at_risk' | 'blocked';
+}
+
+// OKR progress summary type (from database view)
+export interface OKRProgressSummary {
+  objective_id: string;
+  objective_title: string;
+  quarter: number;
+  year: number;
+  objective_status: string;
+  total_key_results: number;
+  completed_key_results: number;
+  avg_progress_percentage: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Form data types for OKR creation/editing
+export interface ObjectiveFormData {
+  title: string;
+  description: string;
+  quarter: 1 | 2 | 3 | 4;
+  year: number;
+  project_id?: string;
+}
+
+export interface KeyResultFormData {
+  title: string;
+  description: string;
+  baseline: number;
+  target: number;
+  unit: string;
+  measurement_frequency: 'daily' | 'weekly' | 'monthly';
+}
 
 // Re-export commonly used database types
 export type DbProject = Database['public']['Tables']['projects']['Row'];

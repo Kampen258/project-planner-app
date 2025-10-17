@@ -13,7 +13,7 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/home');
     }
   }, [user, navigate]);
 
@@ -50,15 +50,8 @@ const LoginPage: React.FC = () => {
       <div className="max-w-md w-full mx-4">
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
           <div className="text-center mb-8">
-            <Link to="/" className="flex items-center justify-center space-x-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">P</span>
-              </div>
-              <span className="text-3xl font-bold text-white">ProjectFlow</span>
-            </Link>
-            <p className="text-white/80 mt-4 text-lg">
-              {isSignUp ? 'Create your account' : 'Sign in to your account'}
-            </p>
+            <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+            <p className="text-white/70">Sign in to continue to your dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -69,62 +62,66 @@ const LoginPage: React.FC = () => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
-                Email address
+              <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
+                Email
               </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl focus:ring-2 focus:ring-white/50 focus:border-white/50 text-white placeholder-white/60 backdrop-blur-md"
-                placeholder="Enter your email"
-              />
+              <div className="relative">
+                <svg className="w-5 h-5 text-white/60 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                </svg>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-white/20 border border-white/30 rounded-xl focus:ring-2 focus:ring-white/50 focus:border-white/50 text-white placeholder-white/50 backdrop-blur-md"
+                  placeholder="you@example.com"
+                />
+              </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl focus:ring-2 focus:ring-white/50 focus:border-white/50 text-white placeholder-white/60 backdrop-blur-md"
-                placeholder="Enter your password"
-                minLength={6}
-              />
+              <div className="relative">
+                <svg className="w-5 h-5 text-white/60 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-white/20 border border-white/30 rounded-xl focus:ring-2 focus:ring-white/50 focus:border-white/50 text-white placeholder-white/50 backdrop-blur-md"
+                  placeholder="••••••"
+                  minLength={6}
+                />
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-white/20 backdrop-blur-md hover:bg-white/30 disabled:bg-white/10 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 border border-white/30"
+              className="w-full bg-white/20 backdrop-blur-md hover:bg-white/30 disabled:bg-white/10 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 border border-white/30"
             >
-              {loading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+              {loading ? 'Please wait...' : 'Sign In'}
             </button>
           </form>
 
           <div className="mt-8 text-center">
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-white/90 hover:text-white font-medium transition-colors"
-            >
-              {isSignUp
-                ? 'Already have an account? Sign in'
-                : "Don't have an account? Sign up"
-              }
-            </button>
-          </div>
-
-          <div className="mt-6 text-center">
-            <Link to="/" className="text-white/70 hover:text-white transition-colors">
-              ← Back to home
-            </Link>
+            <p className="text-white/70">
+              Don't have an account?{' '}
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-white hover:text-white/80 font-medium transition-colors"
+              >
+                Sign Up
+              </button>
+            </p>
           </div>
         </div>
       </div>

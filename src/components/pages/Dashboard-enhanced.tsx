@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/SimpleAuthContext';
+import WeeklyGoalsCardDashboard from '../WeeklyGoalsCard-Dashboard';
+import WeeklyGoalsModal from '../WeeklyGoalsModal';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -9,6 +11,7 @@ const Dashboard: React.FC = () => {
   const [selectedProjects, setSelectedProjects] = useState([1, 2]); // Show first 2 projects by default
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [showWeeklyGoalsModal, setShowWeeklyGoalsModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = () => {
@@ -488,8 +491,8 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Recent Activity and Upcoming Tasks Side by Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Recent Activity, Upcoming Tasks, and Weekly Goals */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-8">
           {/* Recent Activity */}
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
             <h3 className="text-xl font-bold text-white mb-4">Recent Activity</h3>
@@ -527,6 +530,14 @@ const Dashboard: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Weekly Goals */}
+          <div className="lg:col-span-1">
+            <WeeklyGoalsCardDashboard
+              onViewAll={() => setShowWeeklyGoalsModal(true)}
+              className="h-fit"
+            />
           </div>
         </div>
 
@@ -726,6 +737,12 @@ const Dashboard: React.FC = () => {
           </div>
         </section>
       </div>
+
+      {/* Weekly Goals Modal */}
+      <WeeklyGoalsModal
+        isOpen={showWeeklyGoalsModal}
+        onClose={() => setShowWeeklyGoalsModal(false)}
+      />
     </div>
   );
 };

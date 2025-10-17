@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Browser Connection</title>
+</head>
+<body>
+    <h1>Testing Browser Connection to http://localhost:5173</h1>
+    <div id="result">Loading...</div>
+    <script>
+        fetch('http://localhost:5173')
+            .then(response => response.text())
+            .then(html => {
+                const resultDiv = document.getElementById('result');
+                if (html.includes('ProjectFlow')) {
+                    resultDiv.innerHTML = '<p style="color: green">✅ Server is responding correctly</p>';
+                    resultDiv.innerHTML += '<p>Page title found in HTML</p>';
+
+                    // Test if React is loading
+                    if (html.includes('src="/src/main.tsx')) {
+                        resultDiv.innerHTML += '<p style="color: green">✅ React main.tsx is being loaded</p>';
+                    } else {
+                        resultDiv.innerHTML += '<p style="color: red">❌ React main.tsx not found</p>';
+                    }
+                } else {
+                    resultDiv.innerHTML = '<p style="color: red">❌ Server not responding as expected</p>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = '<p style="color: red">❌ Connection failed: ' + error + '</p>';
+            });
+    </script>
+</body>
+</html>

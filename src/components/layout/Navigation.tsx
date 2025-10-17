@@ -65,7 +65,7 @@ const Navigation: React.FC = () => {
         setVoiceFeedback('🎤 Listening... Speak now!');
       };
 
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: any) => {
         console.log('🎤 [Navigation] Voice recognition result received');
         console.log('🎤 [Navigation] Full event object:', event);
 
@@ -216,7 +216,7 @@ const Navigation: React.FC = () => {
         console.log('🎤 [Navigation] Ready for next voice command');
       };
 
-      recognition.onerror = (event) => {
+      recognition.onerror = (event: any) => {
         setIsListening(false);
         console.error('🎤 [Navigation] Voice recognition error occurred:', {
           error: event.error,
@@ -445,6 +445,7 @@ const Navigation: React.FC = () => {
 
             {/* Mobile Voice Microphone Icon - Only for paid subscriptions */}
             {hasVoiceAccess && (
+              <>
               <button
                 onClick={handleVoiceActivation}
                 className={`relative p-2 rounded-full transition-all duration-300 ${
@@ -505,6 +506,7 @@ const Navigation: React.FC = () => {
                   </div>
                 </div>
               )}
+              </>
             )}
 
             <Link

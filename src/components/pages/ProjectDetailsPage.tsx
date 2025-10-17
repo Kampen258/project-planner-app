@@ -5,7 +5,11 @@ import { useAuth } from '../../contexts/SimpleAuthContext';
 import TaskModal from '../tasks/TaskModal';
 import TaskList from '../tasks/TaskList';
 import DiscoveryPipeline from '../newAgile/DiscoveryPipeline';
-import type { Project, Task } from '../../types';
+import OpportunityModal from '../newAgile/OpportunityModal';
+import Navigation from '../common/Navigation';
+import { NewAgileService } from '../../services/newAgileService';
+import type { Project, Task, OpportunityCreateRequest } from '../../types';
+import type { OpportunityCreateRequest as NewAgileOpportunityCreateRequest } from '../../types/newAgile';
 
 const ProjectDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +26,9 @@ const ProjectDetailsPage: React.FC = () => {
   // Task modal states
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  // Opportunity modal states
+  const [showOpportunityModal, setShowOpportunityModal] = useState(false);
 
   // Filter states
   const [taskFilter, setTaskFilter] = useState<'all' | 'todo' | 'in_progress' | 'completed'>('all');
@@ -190,6 +197,29 @@ const ProjectDetailsPage: React.FC = () => {
     }
   };
 
+  const handleSaveOpportunity = async (opportunityData: NewAgileOpportunityCreateRequest) => {
+    try {
+      console.log('Saving opportunity:', opportunityData);
+
+      const result = await NewAgileService.createOpportunity(
+        opportunityData,
+        id!,
+        user?.id || 'anonymous'
+      );
+
+      if (result) {
+        console.log('✅ Opportunity saved successfully:', result);
+        setShowOpportunityModal(false);
+        // TODO: Refresh opportunities list after successful creation
+      } else {
+        throw new Error('Failed to create opportunity');
+      }
+    } catch (error) {
+      console.error('❌ Failed to save opportunity:', error);
+      throw error;
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
@@ -251,128 +281,92 @@ const ProjectDetailsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-400">
       {/* Navigation */}
-      <nav className="bg-white/10 backdrop-blur-md border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16">
-            {/* LEFT: Logo */}
-            <div className="flex items-center space-x-2">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">P</span>
-                </div>
-                <span className="text-xl font-bold text-white">ProjectFlow</span>
-              </Link>
-            </div>
+      <Navigation />
 
-            {/* LEFT NAVIGATION */}
-            <div className="hidden md:flex items-center space-x-6 ml-8">
-              <Link
-                to="/dashboard"
-                className="text-white/90 hover:text-white transition-colors px-3 py-2 rounded-lg font-medium hover:bg-white/10"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/projects"
-                className="text-white hover:text-white transition-colors px-3 py-2 rounded-lg font-medium bg-white/20"
-              >
-                Projects
-              </Link>
-            </div>
-
-            {/* CENTER: Voice Microphone */}
-            {hasVoiceAccess && (
-              <div className="flex-1 flex justify-center">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    // toggleVoiceCommands(); // Temporarily disabled
-                  }}
-                  className="relative px-3 py-2 rounded-full transition-all duration-300 transform hover:scale-110 bg-white/30 border-2 border-white/40 hover:bg-white/40 hover:border-white/60 shadow-lg"
-                  title="🎤 Click to open voice commands menu"
-                >
-                  <svg
-                    className="w-5 h-5 transition-all duration-300 text-white drop-shadow-sm"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            )}
-
-            {/* RIGHT NAVIGATION */}
-            <div className="flex items-center space-x-6">
-              <Link
-                to="/team"
-                className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
-              >
-                Team
-              </Link>
-              <Link
-                to="/profile"
-                className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10"
-              >
-                Profile
-              </Link>
-              <button
-                onClick={() => navigate('/')}
-                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white px-4 py-2 hover:bg-white/15 transition-all duration-300 text-sm font-medium"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="flex-1">
-        {/* Header */}
-        <div className="px-8 py-6">
-          <div className="flex items-center space-x-4 mb-6">
-            <Link
-              to="/projects"
-              className="text-white/80 hover:text-white transition-colors inline-flex items-center space-x-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-              </svg>
-              <span>Back to Projects</span>
-            </Link>
-          </div>
-
-          <h1 className="text-4xl font-bold text-white mb-2">{project.title}</h1>
+      {/* Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex items-center space-x-4 mb-6">
+          <Link
+            to="/projects"
+            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white px-4 py-2 hover:bg-white/15 transition-all duration-300 inline-flex items-center space-x-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Back to Projects</span>
+          </Link>
+          <h1 className="text-3xl font-bold text-white">{project.title}</h1>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="px-8 mb-8">
+        {/* Tab Navigation */}
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-2 mb-8">
           <div className="flex space-x-1">
             {[
-              { key: 'discovery', label: 'Discovery', icon: '🔍' },
-              { key: 'delivery', label: 'Delivery', icon: '📋' },
-              { key: 'okrs', label: 'OKRs', icon: '🎯' },
-              { key: 'insights', label: 'Insights', icon: '📊' },
-              { key: 'personas', label: 'Personas', icon: '👥' },
-              { key: 'decisions', label: 'Decisions', icon: '📝' },
+              {
+                key: 'discovery',
+                label: 'Discovery',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                )
+              },
+              {
+                key: 'delivery',
+                label: 'Delivery',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                  </svg>
+                )
+              },
+              {
+                key: 'okrs',
+                label: 'OKRs',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                )
+              },
+              {
+                key: 'insights',
+                label: 'Insights',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                )
+              },
+              {
+                key: 'personas',
+                label: 'Personas',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                )
+              },
+              {
+                key: 'decisions',
+                label: 'Decisions',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                )
+              },
             ].map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`px-6 py-3 rounded-lg transition-all duration-200 text-sm font-medium inline-flex items-center space-x-2 ${
+                className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium ${
                   activeTab === tab.key
-                    ? 'bg-white/20 text-white'
+                    ? 'bg-white/20 text-white shadow-lg'
                     : 'text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
               >
-                <span>{tab.icon}</span>
+                {tab.icon}
                 <span>{tab.label}</span>
               </button>
             ))}
@@ -380,232 +374,215 @@ const ProjectDetailsPage: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="px-8">
+        <div className="mb-8">
           {activeTab === 'discovery' && (
-            <div>
-              {/* Discovery Pipeline Header */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-white">Discovery Pipeline</h2>
-                    <p className="text-white/70">Problem-first opportunity backlog with hypothesis testing</p>
-                  </div>
+          <div>
+            {/* Discovery Pipeline Header */}
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
                 </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Discovery Pipeline</h2>
+                  <p className="text-white/70">Problem-first opportunity backlog with hypothesis testing</p>
+                </div>
+              </div>
 
-                <button
-                  onClick={() => {
-                    if (discoveryTab === 'opportunities') {
-                      // Handle new opportunity
-                    } else if (discoveryTab === 'hypotheses') {
-                      // Handle new hypothesis
-                    } else {
-                      // Handle new experiment
-                    }
-                  }}
-                  className="px-6 py-3 rounded-lg transition-colors inline-flex items-center space-x-2 border border-white/30 bg-white/20 hover:bg-white/30 text-white"
-                >
+              <button
+                onClick={() => {
+                  if (discoveryTab === 'opportunities') {
+                    setShowOpportunityModal(true);
+                  } else if (discoveryTab === 'hypotheses') {
+                    // Handle new hypothesis
+                  } else {
+                    // Handle new experiment
+                  }
+                }}
+                className="px-6 py-3 rounded-lg transition-colors inline-flex items-center space-x-2 border border-white/30 bg-white/20 hover:bg-white/30 text-white"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>New {discoveryTab === 'opportunities' ? 'Opportunity' : discoveryTab === 'hypotheses' ? 'Hypothesis' : 'Experiment'}</span>
+              </button>
+            </div>
+
+            {/* Discovery Sub-tabs */}
+            <div className="flex space-x-1 mb-8">
+              <button
+                onClick={() => setDiscoveryTab('opportunities')}
+                className={`px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
+                  discoveryTab === 'opportunities'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                Opportunities
+              </button>
+
+              <button
+                onClick={() => setDiscoveryTab('hypotheses')}
+                className={`px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
+                  discoveryTab === 'hypotheses'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                Hypotheses
+              </button>
+
+              <button
+                onClick={() => setDiscoveryTab('experiments')}
+                className={`px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
+                  discoveryTab === 'experiments'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                Experiments
+              </button>
+            </div>
+
+            {/* Discovery Content */}
+            {discoveryTab === 'opportunities' && (
+              <DiscoveryPipeline projectId={id!} />
+            )}
+            {discoveryTab === 'hypotheses' && (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-white/80 mb-2">No hypotheses yet</h3>
+                <p className="text-white/60 mb-6">Start by creating hypotheses from your opportunities</p>
+                <button className="bg-blue-500/30 hover:bg-blue-500/40 text-blue-100 px-6 py-2 rounded-lg transition-colors inline-flex items-center space-x-2 border border-blue-400/30">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  <span>New {discoveryTab === 'opportunities' ? 'Opportunity' : discoveryTab === 'hypotheses' ? 'Hypothesis' : 'Experiment'}</span>
+                  <span>Create First Hypothesis</span>
                 </button>
               </div>
-
-              {/* Discovery Sub-tabs */}
-              <div className="flex space-x-1 mb-8">
-                <button
-                  onClick={() => setDiscoveryTab('opportunities')}
-                  className={`px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
-                    discoveryTab === 'opportunities'
-                      ? 'bg-white/20 text-white'
-                      : 'text-white/70 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    <span>Opportunities</span>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setDiscoveryTab('hypotheses')}
-                  className={`px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
-                    discoveryTab === 'hypotheses'
-                      ? 'bg-white/20 text-white'
-                      : 'text-white/70 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>Hypotheses</span>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setDiscoveryTab('experiments')}
-                  className={`px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
-                    discoveryTab === 'experiments'
-                      ? 'bg-white/20 text-white'
-                      : 'text-white/70 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    <span>Experiments</span>
-                  </div>
-                </button>
-              </div>
-
-              {/* Discovery Content */}
-              <div>
-                {discoveryTab === 'opportunities' && (
-                  <DiscoveryPipeline projectId={id!} />
-                )}
-                {discoveryTab === 'hypotheses' && (
-                  <div className="text-center py-16">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-white/80 mb-2">No hypotheses yet</h3>
-                    <p className="text-white/60 mb-6">Start by creating hypotheses from your opportunities</p>
-                    <button className="bg-blue-500/30 hover:bg-blue-500/40 text-blue-100 px-6 py-2 rounded-lg transition-colors inline-flex items-center space-x-2 border border-blue-400/30">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      <span>Create First Hypothesis</span>
-                    </button>
-                  </div>
-                )}
-                {discoveryTab === 'experiments' && (
-                  <div className="text-center py-16">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-white/80 mb-2">No experiments yet</h3>
-                    <p className="text-white/60 mb-6">Start by creating experiments to test your hypotheses</p>
-                    <button className="bg-blue-500/30 hover:bg-blue-500/40 text-blue-100 px-6 py-2 rounded-lg transition-colors inline-flex items-center space-x-2 border border-blue-400/30">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      <span>Create First Experiment</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'delivery' && (
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Tasks</h2>
-                  <div className="flex items-center space-x-4 text-sm text-white/70">
-                    <span>Total: {taskStats.total}</span>
-                    <span>Completed: {taskStats.completed}</span>
-                    <span>In Progress: {taskStats.inProgress}</span>
-                    <span>To Do: {taskStats.todo}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setShowTaskModal(true)}
-                  className="bg-blue-500/30 hover:bg-blue-500/40 text-blue-100 px-6 py-3 rounded-lg transition-colors inline-flex items-center space-x-2 border border-blue-400/30"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            )}
+            {discoveryTab === 'experiments' && (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
-                  <span>Add Task</span>
+                </div>
+                <h3 className="text-lg font-medium text-white/80 mb-2">No experiments yet</h3>
+                <p className="text-white/60 mb-6">Start by creating experiments to test your hypotheses</p>
+                <button className="bg-blue-500/30 hover:bg-blue-500/40 text-blue-100 px-6 py-2 rounded-lg transition-colors inline-flex items-center space-x-2 border border-blue-400/30">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Create First Experiment</span>
                 </button>
               </div>
+            )}
+          </div>
+        )}
 
-              {/* Task Filters */}
-              <div className="flex space-x-2 mb-6">
-                {[
-                  { key: 'all', label: 'All', count: taskStats.total },
-                  { key: 'todo', label: 'To Do', count: taskStats.todo },
-                  { key: 'in_progress', label: 'In Progress', count: taskStats.inProgress },
-                  { key: 'completed', label: 'Completed', count: taskStats.completed },
-                ].map((filter) => (
-                  <button
-                    key={filter.key}
-                    onClick={() => setTaskFilter(filter.key as any)}
-                    className={`px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
-                      taskFilter === filter.key
-                        ? 'bg-white/20 text-white'
-                        : 'text-white/70 hover:bg-white/10 hover:text-white'
-                    }`}
-                  >
-                    {filter.label} ({filter.count})
-                  </button>
-                ))}
+        {activeTab === 'delivery' && (
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Tasks</h2>
+                <div className="flex items-center space-x-4 text-sm text-white/70">
+                  <span>Total: {taskStats.total}</span>
+                  <span>Completed: {taskStats.completed}</span>
+                  <span>In Progress: {taskStats.inProgress}</span>
+                  <span>To Do: {taskStats.todo}</span>
+                </div>
               </div>
 
-              {/* Task List */}
-              <TaskList
-                tasks={filteredTasks}
-                onTaskUpdate={handleUpdateTask}
-                onTaskDelete={handleDeleteTask}
-                onTaskEdit={handleEditTask}
-                loading={tasksLoading}
-              />
+              <button
+                onClick={() => setShowTaskModal(true)}
+                className="bg-blue-500/30 hover:bg-blue-500/40 text-blue-100 px-6 py-3 rounded-lg transition-colors inline-flex items-center space-x-2 border border-blue-400/30"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add Task</span>
+              </button>
             </div>
-          )}
 
-          {activeTab === 'okrs' && (
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🎯</span>
-              </div>
-              <h3 className="text-lg font-medium text-white/80 mb-2">OKRs Coming Soon</h3>
-              <p className="text-white/60">Objectives and Key Results tracking will be available soon.</p>
+            {/* Task Filters */}
+            <div className="flex space-x-2 mb-6">
+              {[
+                { key: 'all', label: 'All', count: taskStats.total },
+                { key: 'todo', label: 'To Do', count: taskStats.todo },
+                { key: 'in_progress', label: 'In Progress', count: taskStats.inProgress },
+                { key: 'completed', label: 'Completed', count: taskStats.completed },
+              ].map((filter) => (
+                <button
+                  key={filter.key}
+                  onClick={() => setTaskFilter(filter.key as any)}
+                  className={`px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
+                    taskFilter === filter.key
+                      ? 'bg-white/20 text-white'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  {filter.label} ({filter.count})
+                </button>
+              ))}
             </div>
-          )}
 
-          {activeTab === 'insights' && (
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                <span className="text-2xl">📊</span>
-              </div>
-              <h3 className="text-lg font-medium text-white/80 mb-2">Insights Coming Soon</h3>
-              <p className="text-white/60">Project analytics and insights will be available soon.</p>
-            </div>
-          )}
+            {/* Task List */}
+            <TaskList
+              tasks={filteredTasks}
+              onTaskUpdate={handleUpdateTask}
+              onTaskDelete={handleDeleteTask}
+              onTaskEdit={handleEditTask}
+              loading={tasksLoading}
+            />
+          </div>
+        )}
 
-          {activeTab === 'personas' && (
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                <span className="text-2xl">👥</span>
-              </div>
-              <h3 className="text-lg font-medium text-white/80 mb-2">Personas Coming Soon</h3>
-              <p className="text-white/60">User personas and stakeholder management will be available soon.</p>
+        {activeTab === 'okrs' && (
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
+              <span className="text-2xl">🎯</span>
             </div>
-          )}
+            <h3 className="text-lg font-medium text-white/80 mb-2">OKRs Coming Soon</h3>
+            <p className="text-white/60">Objectives and Key Results tracking will be available soon.</p>
+          </div>
+        )}
 
-          {activeTab === 'decisions' && (
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                <span className="text-2xl">📝</span>
-              </div>
-              <h3 className="text-lg font-medium text-white/80 mb-2">Decisions Coming Soon</h3>
-              <p className="text-white/60">Decision tracking and documentation will be available soon.</p>
+        {activeTab === 'insights' && (
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
+              <span className="text-2xl">📊</span>
             </div>
-          )}
+            <h3 className="text-lg font-medium text-white/80 mb-2">Insights Coming Soon</h3>
+            <p className="text-white/60">Project analytics and insights will be available soon.</p>
+          </div>
+        )}
+
+        {activeTab === 'personas' && (
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
+              <span className="text-2xl">👥</span>
+            </div>
+            <h3 className="text-lg font-medium text-white/80 mb-2">Personas Coming Soon</h3>
+            <p className="text-white/60">User personas and stakeholder management will be available soon.</p>
+          </div>
+        )}
+
+        {activeTab === 'decisions' && (
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
+              <span className="text-2xl">📝</span>
+            </div>
+            <h3 className="text-lg font-medium text-white/80 mb-2">Decisions Coming Soon</h3>
+            <p className="text-white/60">Decision tracking and documentation will be available soon.</p>
+          </div>
+        )}
         </div>
       </div>
 
@@ -617,6 +594,14 @@ const ProjectDetailsPage: React.FC = () => {
         projectId={project.id}
         task={editingTask}
         title={editingTask ? 'Edit Task' : 'Create Task'}
+      />
+
+      {/* Opportunity Modal */}
+      <OpportunityModal
+        isOpen={showOpportunityModal}
+        onClose={() => setShowOpportunityModal(false)}
+        onSave={handleSaveOpportunity}
+        projectId={id!}
       />
     </div>
   );

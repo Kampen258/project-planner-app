@@ -105,19 +105,6 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
 
   return (
     <div className={className}>
-      {/* Just the content area with New Opportunity button */}
-      <div className="flex justify-end mb-8">
-        <button
-          onClick={handleNewOpportunity}
-          className="px-6 py-3 rounded-lg transition-colors inline-flex items-center space-x-2 border border-white/30 bg-white/20 hover:bg-white/30 text-white"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span>New Opportunity</span>
-        </button>
-      </div>
-
       {/* Opportunities Content */}
       <div>
         {opportunities.length === 0 ? (
