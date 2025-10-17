@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import type { Opportunity, Hypothesis, Experiment, OpportunityStatus, ConfidenceLevel, EffortEstimate, RiskLevel, CostOfDelay, OpportunityCreateRequest } from '../../types/newAgile';
+import type { Opportunity, Hypothesis, Experiment, OpportunityStatus, ConfidenceLevel, EffortEstimate, RiskLevel, CostOfDelay, OpportunityCreateRequest, HypothesisCreateRequest, ExperimentCreateRequest } from '../../types/newAgile';
 import OpportunityModal from './OpportunityModal';
-// import HypothesisModal from './HypothesisModal'; // Temporarily disabled due to circular import issue
+import HypothesisModal from './HypothesisModal';
+import ExperimentModal from './ExperimentModal';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import { NewAgileService } from '../../services/newAgileService';
 
@@ -17,6 +18,7 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
   const [activeTab, setActiveTab] = useState<TabType>('opportunities');
   const [showOpportunityModal, setShowOpportunityModal] = useState(false);
   const [showHypothesisModal, setShowHypothesisModal] = useState(false);
+  const [showExperimentModal, setShowExperimentModal] = useState(false);
   const [showOpportunityInfo, setShowOpportunityInfo] = useState(false);
 
   // Mock data - in real app this would come from API
@@ -55,7 +57,7 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
     setShowHypothesisModal(true);
   };
 
-  const handleSaveHypothesis = async (hypothesisData: any) => {
+  const handleSaveHypothesis = async (hypothesisData: HypothesisCreateRequest) => {
     try {
       console.log('Saving hypothesis:', hypothesisData);
 
@@ -78,8 +80,29 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
   };
 
   const handleNewExperiment = () => {
-    // TODO: Open experiment creation modal
-    console.log('Creating new experiment');
+    setShowExperimentModal(true);
+  };
+
+  const handleSaveExperiment = async (experimentData: ExperimentCreateRequest) => {
+    try {
+      console.log('Saving experiment:', experimentData);
+
+      const result = await NewAgileService.createExperiment(
+        experimentData,
+        projectId,
+        user?.id || 'anonymous'
+      );
+
+      if (result) {
+        console.log('✅ Experiment saved successfully:', result);
+        // TODO: Refresh experiments list after successful creation
+      } else {
+        throw new Error('Failed to create experiment');
+      }
+    } catch (error) {
+      console.error('❌ Failed to save experiment:', error);
+      throw error;
+    }
   };
 
   const EmptyState = ({ type, onAdd }: { type: string; onAdd: () => void }) => (
@@ -260,13 +283,21 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
         projectId={projectId}
       />
 
-      {/* Hypothesis Modal - Temporarily disabled due to circular import issue */}
-      {/* <HypothesisModal
+      {/* Hypothesis Modal */}
+      <HypothesisModal
         isOpen={showHypothesisModal}
         onClose={() => setShowHypothesisModal(false)}
         onSave={handleSaveHypothesis}
         projectId={projectId}
-      /> */}
+      />
+
+      {/* Experiment Modal */}
+      <ExperimentModal
+        isOpen={showExperimentModal}
+        onClose={() => setShowExperimentModal(false)}
+        onSave={handleSaveExperiment}
+        projectId={projectId}
+      />
     </div>
   );
 };
