@@ -385,16 +385,11 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9998]"
-        onClick={handleClose}
-      />
       {/* Modal Container */}
       <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 pointer-events-none">
         <div className="pointer-events-auto">
           {/* Modal */}
-          <div className="relative w-full max-w-4xl glass-card animate-scale-in max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-4xl bg-gray-800/70 backdrop-blur-md border border-gray-600/20 rounded-2xl animate-scale-in max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleSubmit}>
               {/* Header */}
               <div className="p-6 border-b border-white/10">
