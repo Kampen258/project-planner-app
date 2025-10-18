@@ -171,11 +171,8 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-            <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <rect x="3" y="8" width="13" height="8" rx="1" strokeWidth={2} />
-              <rect x="16" y="10" width="4" height="6" rx="1" strokeWidth={2} />
-              <circle cx="7" cy="19" r="1.5" strokeWidth={2} />
-              <circle cx="17" cy="19" r="1.5" strokeWidth={2} />
+            <svg className="w-4 h-4 text-blue-300" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17 8V7c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1.2c.4 1.7 2 3 3.8 3s3.4-1.3 3.8-3h1.4c.4 1.7 2 3 3.8 3s3.4-1.3 3.8-3H22v-4l-3-3h-2zM8 17c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm9-9h1.5l1.5 1.5V11H17V8zm0 9c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z"/>
             </svg>
           </div>
           <div>
