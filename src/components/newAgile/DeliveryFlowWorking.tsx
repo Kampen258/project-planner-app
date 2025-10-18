@@ -6,8 +6,11 @@ interface DeliveryFlowWorkingProps {
   projectName?: string;
   className?: string;
   tasks?: Task[];
+  selectedPhaseId?: string | null;
   onTaskCreate?: (task: Partial<Task>) => Promise<void>;
   onTaskUpdate?: (task: Task) => Promise<void>;
+  onClearPhaseFilter?: () => void;
+  onPhaseSelect?: (phaseId: string | null) => void;
 }
 
 // ULTRA SIMPLE VERSION - NO EXTERNAL DEPENDENCIES
@@ -16,14 +19,18 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
   projectName,
   className = '',
   tasks = [],
+  selectedPhaseId,
   onTaskCreate,
-  onTaskUpdate
+  onTaskUpdate,
+  onClearPhaseFilter,
+  onPhaseSelect
 }) => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [displayTasks, setDisplayTasks] = useState(tasks);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
+  const [showPhaseDropdown, setShowPhaseDropdown] = useState(false);
 
   // Wizard steps
   const steps = [
@@ -47,7 +54,7 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
   // WIP limits for each column (New Agile method)
   const [wipLimits, setWipLimits] = useState({
     in_progress: 3, // WIP limit for In Progress
-    completed: 3    // WIP limit for Done (before release)
+    review: 2       // WIP limit for Review (should be smaller for quick feedback)
   });
 
   // Task form data
@@ -55,26 +62,170 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
     name: '',
     description: '',
     priority: 'medium',
-    status: 'todo',
+    status: 'ready',
     due_date: null,
     assigned_to: null,
     completed: false,
     order_index: null
   });
 
-  // Update displayTasks when tasks prop changes
-  useEffect(() => {
-    setDisplayTasks(tasks);
-  }, [tasks]);
+  // Get mock tasks for the specific project
+  const getMockTasksForProject = (projectId: string) => {
+    // This would normally come from an API call or database
+    // For demo purposes, we'll return project-specific tasks based on projectId
 
-  console.log('🚛 DeliveryFlow: Rendering for project', projectName || projectId, 'with', tasks.length, 'tasks');
+    // Default generic tasks for any project
+    const genericTasks = [
+      { id: `${projectId}-1`, title: 'Project setup and initialization', status: 'ready', priority: 'high', phaseId: 'phase-1', description: 'Set up project structure and dependencies', project_id: projectId },
+      { id: `${projectId}-2`, title: 'Requirements analysis', status: 'in_progress', priority: 'high', phaseId: 'phase-1', description: 'Analyze and document project requirements', project_id: projectId },
+      { id: `${projectId}-3`, title: 'Architecture design', status: 'review', priority: 'medium', phaseId: 'phase-1', description: 'Design system architecture', project_id: projectId },
+      { id: `${projectId}-4`, title: 'Core functionality development', status: 'ready', priority: 'high', phaseId: 'phase-2', description: 'Implement core features', project_id: projectId },
+      { id: `${projectId}-5`, title: 'Database integration', status: 'in_progress', priority: 'medium', phaseId: 'phase-2', description: 'Connect and configure database', project_id: projectId },
+      { id: `${projectId}-6`, title: 'API development', status: 'released', priority: 'high', phaseId: 'phase-2', description: 'Build REST API endpoints', project_id: projectId },
+    ];
+
+    // Special tasks for quiz/education projects
+    if (projectId && (projectId.includes('quiz') || projectId.toLowerCase().includes('education'))) {
+      return [
+        { id: `${projectId}-1`, title: 'Design quiz question types', status: 'ready', priority: 'high', phaseId: 'phase-1', description: 'Define different types of quiz questions', project_id: projectId },
+        { id: `${projectId}-2`, title: 'Create database schema', status: 'in_progress', priority: 'high', phaseId: 'phase-1', description: 'Design quiz data structure', project_id: projectId },
+        { id: `${projectId}-3`, title: 'Setup user authentication', status: 'review', priority: 'medium', phaseId: 'phase-1', description: 'Implement user login system', project_id: projectId },
+        { id: `${projectId}-4`, title: 'Build quiz engine core', status: 'ready', priority: 'high', phaseId: 'phase-2', description: 'Core quiz logic implementation', project_id: projectId },
+        { id: `${projectId}-5`, title: 'Implement question randomization', status: 'in_progress', priority: 'medium', phaseId: 'phase-2', description: 'Randomize question order', project_id: projectId },
+        { id: `${projectId}-6`, title: 'Add scoring system', status: 'released', priority: 'high', phaseId: 'phase-2', description: 'Calculate and store quiz scores', project_id: projectId },
+        { id: `${projectId}-7`, title: 'Design quiz interface', status: 'ready', priority: 'medium', phaseId: 'phase-3', description: 'Create user-friendly quiz UI', project_id: projectId },
+        { id: `${projectId}-8`, title: 'Implement responsive design', status: 'in_progress', priority: 'low', phaseId: 'phase-3', description: 'Mobile-friendly interface', project_id: projectId },
+        { id: `${projectId}-9`, title: 'Add progress indicators', status: 'measuring', priority: 'low', phaseId: 'phase-3', description: 'Show quiz progress to users', project_id: projectId },
+        { id: `${projectId}-10`, title: 'Write unit tests', status: 'ready', priority: 'medium', phaseId: 'phase-4', description: 'Test quiz functionality', project_id: projectId },
+        { id: `${projectId}-11`, title: 'Performance testing', status: 'ready', priority: 'high', phaseId: 'phase-4', description: 'Test app under load', project_id: projectId },
+        { id: `${projectId}-12`, title: 'Deploy to staging', status: 'ready', priority: 'high', phaseId: 'phase-5', description: 'Deploy to test environment', project_id: projectId },
+      ];
+    }
+
+    return genericTasks;
+  };
+
+  // Get phase name for display
+  const getPhaseInfo = (phaseId: string) => {
+    const phaseNames = {
+      'phase-1': { name: 'Quiz Planning Phase', color: '#10b981' },
+      'phase-2': { name: 'Quiz Development', color: '#f59e0b' },
+      'phase-3': { name: 'User Interface Design', color: '#3b82f6' },
+      'phase-4': { name: 'Testing & Quality Assurance', color: '#8b5cf6' },
+      'phase-5': { name: 'Deployment & Launch', color: '#ef4444' },
+      'phase-6': { name: 'Post-Launch Monitoring', color: '#06b6d4' },
+    };
+    return phaseNames[phaseId as keyof typeof phaseNames] || { name: 'Unknown Phase', color: '#6b7280' };
+  };
+
+  // Available phases for dropdown
+  const availablePhases = [
+    { id: 'phase-1', name: 'Quiz Planning Phase', color: '#10b981' },
+    { id: 'phase-2', name: 'Quiz Development', color: '#f59e0b' },
+    { id: 'phase-3', name: 'User Interface Design', color: '#3b82f6' },
+    { id: 'phase-4', name: 'Testing & Quality Assurance', color: '#8b5cf6' },
+    { id: 'phase-5', name: 'Deployment & Launch', color: '#ef4444' },
+    { id: 'phase-6', name: 'Post-Launch Monitoring', color: '#06b6d4' },
+  ];
+
+  // Handle phase selection from dropdown
+  const handlePhaseSelection = (phaseId: string | null) => {
+    setShowPhaseDropdown(false);
+    if (onPhaseSelect) {
+      onPhaseSelect(phaseId);
+    }
+  };
+
+  // Update displayTasks when tasks prop changes or phase filter changes
+  useEffect(() => {
+    // Get project-specific tasks (either from props or mock data)
+    let projectTasks = tasks;
+
+    // If no tasks provided via props, get mock tasks for this specific project
+    if (tasks.length === 0) {
+      projectTasks = getMockTasksForProject(projectId);
+    } else {
+      // Filter existing tasks to only show those belonging to this project
+      projectTasks = tasks.filter((task: any) =>
+        task.project_id === projectId || task.projectId === projectId
+      );
+    }
+
+    // Further filter by phase if one is selected
+    if (selectedPhaseId) {
+      const filteredTasks = projectTasks.filter((task: any) =>
+        task.phaseId === selectedPhaseId
+      );
+      setDisplayTasks(filteredTasks);
+    } else {
+      setDisplayTasks(projectTasks);
+    }
+  }, [tasks, selectedPhaseId, projectId]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showPhaseDropdown && !(event.target as Element).closest('.relative')) {
+        setShowPhaseDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showPhaseDropdown]);
+
+  console.log('🚛 DeliveryFlow: Rendering for project', {
+    projectId,
+    projectName,
+    resolvedName: projectName || 'New Agile Project',
+    providedTasks: tasks.length,
+    displayedTasks: displayTasks.length,
+    selectedPhase: selectedPhaseId ? getPhaseInfo(selectedPhaseId).name : 'All phases'
+  });
 
   const columns = [
-    { id: 'todo', title: 'Ready', color: '#3b82f6', hasWipLimit: false },
+    { id: 'ready', title: 'Ready', color: '#3b82f6', hasWipLimit: false },
     { id: 'in_progress', title: 'In Progress', color: '#f59e0b', hasWipLimit: true, wipLimit: wipLimits.in_progress },
-    { id: 'completed', title: 'Done', color: '#10b981', hasWipLimit: true, wipLimit: wipLimits.completed },
-    { id: 'cancelled', title: 'Released', color: '#6b7280', hasWipLimit: false },
+    { id: 'review', title: 'Review', color: '#f97316', hasWipLimit: true, wipLimit: wipLimits.review },
+    { id: 'released', title: 'Released', color: '#10b981', hasWipLimit: false },
+    { id: 'measuring', title: 'Measuring', color: '#8b5cf6', hasWipLimit: false },
   ];
+
+  // Get priority color for task cards
+  const getPriorityColor = (priority: string | null | undefined) => {
+    switch (priority) {
+      case 'urgent':
+        return {
+          bg: 'bg-red-500/20',
+          text: 'text-red-200',
+          border: 'border-red-400/30'
+        };
+      case 'high':
+        return {
+          bg: 'bg-orange-500/20',
+          text: 'text-orange-200',
+          border: 'border-orange-400/30'
+        };
+      case 'medium':
+        return {
+          bg: 'bg-yellow-500/20',
+          text: 'text-yellow-200',
+          border: 'border-yellow-400/30'
+        };
+      case 'low':
+        return {
+          bg: 'bg-blue-500/20',
+          text: 'text-blue-200',
+          border: 'border-blue-400/30'
+        };
+      default:
+        return {
+          bg: 'bg-gray-500/20',
+          text: 'text-gray-200',
+          border: 'border-gray-400/30'
+        };
+    }
+  };
 
   // Check if WIP limit is exceeded
   const getWipStatus = (columnId: string, taskCount: number) => {
@@ -111,7 +262,7 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
       name: '',
       description: '',
       priority: 'medium',
-      status: 'todo',
+      status: 'ready',
       due_date: null,
       assigned_to: null,
       completed: false,
@@ -177,15 +328,99 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
           </div>
           <div>
             <h2 className="text-2xl font-bold text-white">Delivery Flow</h2>
-            <p className="text-white/70">{projectName || `Project ${projectId}`} - Kanban with WIP Limits</p>
+            <div className="flex items-center space-x-2">
+              <p className="text-white/70">{projectName ? projectName : 'New Agile Project'} - Kanban with WIP Limits</p>
+              {selectedPhaseId && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-white/50">•</span>
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-medium border text-white/90"
+                    style={{
+                      backgroundColor: `${getPhaseInfo(selectedPhaseId).color}20`,
+                      borderColor: `${getPhaseInfo(selectedPhaseId).color}30`,
+                    }}
+                  >
+                    {getPhaseInfo(selectedPhaseId).name}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        <button
-          onClick={() => setShowTaskModal(true)}
-          className="px-6 py-3 btn-glass hover:bg-white/20 text-white rounded-xl transition-all duration-200 inline-flex items-center space-x-2"
-        >
-          <span>Create Task</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          {/* Phase Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowPhaseDropdown(!showPhaseDropdown)}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white/90 rounded-lg transition-all duration-200 inline-flex items-center space-x-2 text-sm border border-white/20"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5m14 14H5" />
+              </svg>
+              <span>{selectedPhaseId ? getPhaseInfo(selectedPhaseId).name : 'Select Phase'}</span>
+              <svg className={`w-3 h-3 transition-transform duration-200 ${showPhaseDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Dropdown Menu */}
+            {showPhaseDropdown && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-xl z-50">
+                <div className="p-2">
+                  {/* All Tasks Option */}
+                  <button
+                    onClick={() => handlePhaseSelection(null)}
+                    className={`w-full px-3 py-2 rounded-lg text-left transition-all duration-200 flex items-center space-x-3 ${
+                      !selectedPhaseId
+                        ? 'bg-white/20 text-white'
+                        : 'text-white/80 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <div className="w-3 h-3 rounded bg-gray-400"></div>
+                    <span className="text-sm font-medium">All Tasks</span>
+                  </button>
+
+                  {/* Phase Options */}
+                  {availablePhases.map((phase) => (
+                    <button
+                      key={phase.id}
+                      onClick={() => handlePhaseSelection(phase.id)}
+                      className={`w-full px-3 py-2 rounded-lg text-left transition-all duration-200 flex items-center space-x-3 ${
+                        selectedPhaseId === phase.id
+                          ? 'bg-white/20 text-white'
+                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <div
+                        className="w-3 h-3 rounded"
+                        style={{ backgroundColor: phase.color }}
+                      ></div>
+                      <span className="text-sm font-medium">{phase.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {selectedPhaseId && onClearPhaseFilter && (
+            <button
+              onClick={onClearPhaseFilter}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white/80 rounded-lg transition-all duration-200 inline-flex items-center space-x-2 text-sm border border-white/20"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>Clear Filter</span>
+            </button>
+          )}
+          <button
+            onClick={() => setShowTaskModal(true)}
+            className="px-6 py-3 btn-glass hover:bg-white/20 text-white rounded-xl transition-all duration-200 inline-flex items-center space-x-2"
+          >
+            <span>Create Task</span>
+          </button>
+        </div>
       </div>
 
       {/* WIP Status Alert */}
@@ -204,7 +439,7 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
       )}
 
       {/* Delivery Lanes */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-5 gap-3">
         {columns.map((column) => {
           const columnTasks = displayTasks.filter(task => task.status === column.id);
           const wipStatus = getWipStatus(column.id, columnTasks.length);
@@ -241,22 +476,25 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
 
               {/* Tasks in this column */}
               <div className="space-y-3">
-                {columnTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="bg-white/10 border border-white/20 rounded-lg p-3 cursor-pointer hover:bg-white/20 transition-colors"
-                  >
-                    <div className="text-white font-medium text-sm mb-2">{task.name}</div>
-                    <div className="text-white/70 text-xs mb-1">
-                      {task.assigned_to || 'Unassigned'}
-                    </div>
-                    {task.priority && (
-                      <div className="text-white/50 text-xs">
-                        Priority: {task.priority}
+                {columnTasks.map((task) => {
+                  const priorityColors = getPriorityColor(task.priority);
+                  return (
+                    <div
+                      key={task.id}
+                      className="bg-white/10 border border-white/20 rounded-lg p-3 cursor-pointer hover:bg-white/20 transition-colors"
+                    >
+                      <div className="text-white font-medium text-sm mb-2">{task.name}</div>
+                      <div className="text-white/70 text-xs mb-2">
+                        {task.assigned_to || 'Unassigned'}
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {task.priority && (
+                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${priorityColors.bg} ${priorityColors.text} ${priorityColors.border} border`}>
+                          {task.priority}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
@@ -266,9 +504,11 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
       {/* Task Summary */}
       <div className="mt-6 flex items-center justify-center space-x-6 text-white/70 text-sm">
         <div>Total: <span className="text-white font-medium">{displayTasks.length}</span></div>
+        <div>Ready: <span className="text-white font-medium">{displayTasks.filter(t => t.status === 'ready').length}</span></div>
         <div>In Progress: <span className="text-white font-medium">{displayTasks.filter(t => t.status === 'in_progress').length}</span></div>
-        <div>Completed: <span className="text-white font-medium">{displayTasks.filter(t => t.status === 'completed').length}</span></div>
-        <div>Cancelled: <span className="text-white font-medium">{displayTasks.filter(t => t.status === 'cancelled').length}</span></div>
+        <div>Review: <span className="text-white font-medium">{displayTasks.filter(t => t.status === 'review').length}</span></div>
+        <div>Released: <span className="text-white font-medium">{displayTasks.filter(t => t.status === 'released').length}</span></div>
+        <div>Measuring: <span className="text-white font-medium">{displayTasks.filter(t => t.status === 'measuring').length}</span></div>
       </div>
 
       {/* Task Creation Modal - Wizard Style */}
@@ -413,14 +653,15 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
                       <label className="block text-white text-sm font-medium mb-3">Initial Status</label>
                       <select
                         name="status"
-                        value={taskFormData.status || 'todo'}
+                        value={taskFormData.status || 'ready'}
                         onChange={handleFormChange}
                         className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                       >
-                        <option value="todo">To Do - Ready to be started</option>
-                        <option value="in_progress">In Progress - Currently being worked on</option>
-                        <option value="completed">Completed - Task is finished</option>
-                        <option value="cancelled">Cancelled - Task is no longer needed</option>
+                        <option value="ready">Ready - Prioritized items ready to start</option>
+                        <option value="in_progress">In Progress - Active development work</option>
+                        <option value="review">Review - Code review, testing, QA</option>
+                        <option value="released">Released - Deployed and live</option>
+                        <option value="measuring">Measuring - Validating impact within 14-30 days</option>
                       </select>
                     </div>
 

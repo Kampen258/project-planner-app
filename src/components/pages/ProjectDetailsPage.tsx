@@ -9,11 +9,14 @@ import OKRManagement from '../newAgile/OKRManagement';
 import DiscoveryLog from '../newAgile/DiscoveryLog';
 import UserPersonas from '../newAgile/UserPersonas';
 import DecisionLog from '../newAgile/DecisionLog';
+import PhaseSelector from '../newAgile/PhaseSelector';
+import TasksManagement from '../newAgile/TasksManagement';
+import ProjectDocuments from '../newAgile/ProjectDocuments';
 import OpportunityModal from '../newAgile/OpportunityModal';
 import Navigation from '../common/Navigation';
 import { NewAgileService } from '../../services/newAgileService';
 import type { Project, Task, OpportunityCreateRequest } from '../../types';
-import type { OpportunityCreateRequest as NewAgileOpportunityCreateRequest } from '../../types/newAgile';
+import type { OpportunityCreateRequest as NewAgileOpportunityCreateRequest, Phase } from '../../types/newAgile';
 
 const ProjectDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,10 +41,13 @@ const ProjectDetailsPage: React.FC = () => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'todo' | 'in_progress' | 'completed'>('all');
 
   // Tab navigation state
-  const [activeTab, setActiveTab] = useState<'discovery' | 'delivery' | 'okrs' | 'insights' | 'personas' | 'decisions'>('discovery');
+  const [activeTab, setActiveTab] = useState<'discovery' | 'delivery' | 'phases' | 'okrs' | 'insights' | 'personas' | 'tasks' | 'documents' | 'decisions'>('discovery');
 
   // Discovery sub-tab state
   const [discoveryTab, setDiscoveryTab] = useState<'opportunities' | 'hypotheses' | 'experiments'>('opportunities');
+
+  // Phase filtering state
+  const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
 
   // Pro/Admin users have full access to voice features
   const hasVoiceAccess = user?.email === 'edovankampen@outlook.com' || user?.email === 'admin@projectflow.com';
@@ -224,6 +230,12 @@ const ProjectDetailsPage: React.FC = () => {
     }
   };
 
+  const handlePhaseSelect = (phase: Phase) => {
+    console.log('Phase selected:', phase);
+    setSelectedPhaseId(phase.id);
+    setActiveTab('delivery');
+  };
+
   const renderActiveTabContent = () => {
     if (!id) return null;
 
@@ -234,10 +246,21 @@ const ProjectDetailsPage: React.FC = () => {
         return (
           <DeliveryFlowWorking
             projectId={id}
-            projectName={project?.name}
+            projectName={project?.title}
             tasks={tasks}
+            selectedPhaseId={selectedPhaseId}
             onTaskCreate={handleCreateTask}
             onTaskUpdate={handleUpdateTask}
+            onClearPhaseFilter={() => setSelectedPhaseId(null)}
+            onPhaseSelect={(phaseId) => setSelectedPhaseId(phaseId)}
+          />
+        );
+      case 'phases':
+        return (
+          <PhaseSelector
+            projectId={id}
+            projectName={project?.title || 'Untitled Project'}
+            onPhaseSelect={handlePhaseSelect}
           />
         );
       case 'okrs':
@@ -248,6 +271,21 @@ const ProjectDetailsPage: React.FC = () => {
         return <UserPersonas projectId={id} />;
       case 'decisions':
         return <DecisionLog projectId={id} />;
+      case 'tasks':
+        return (
+          <TasksManagement
+            projectId={id}
+            projectName={project?.title || 'Untitled Project'}
+            selectedPhaseId={selectedPhaseId}
+          />
+        );
+      case 'documents':
+        return (
+          <ProjectDocuments
+            projectId={id}
+            projectName={project?.title || 'Untitled Project'}
+          />
+        );
       default:
         return <DiscoveryPipeline projectId={id} />;
     }
@@ -345,6 +383,15 @@ const ProjectDetailsPage: React.FC = () => {
                 )
               },
               {
+                key: 'phases',
+                label: 'Phases',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5m14 14H5" />
+                  </svg>
+                )
+              },
+              {
                 key: 'delivery',
                 label: 'Delivery',
                 icon: (
@@ -377,6 +424,24 @@ const ProjectDetailsPage: React.FC = () => {
                 icon: (
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                )
+              },
+              {
+                key: 'tasks',
+                label: 'Tasks',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                )
+              },
+              {
+                key: 'documents',
+                label: 'Documents',
+                icon: (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 )
               },

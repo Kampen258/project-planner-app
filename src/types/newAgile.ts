@@ -5,6 +5,7 @@ export type OpportunityStatus = 'backlog' | 'researching' | 'validated' | 'archi
 export type HypothesisStatus = 'draft' | 'in_test' | 'learning' | 'scaled' | 'killed' | 'archived';
 export type ExperimentStatus = 'planned' | 'running' | 'completed' | 'cancelled';
 export type DeliveryTaskStatus = 'ready' | 'in_progress' | 'review' | 'released' | 'measuring';
+export type PhaseStatus = 'not_started' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled';
 export type ConfidenceLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export type EffortEstimate = 'S' | 'M' | 'L';
 export type RiskLevel = 'low' | 'medium' | 'high';
@@ -130,6 +131,27 @@ export interface KeyResult {
   updated_at: string;
 }
 
+// Phase (Project phases containing multiple tasks)
+export interface Phase {
+  id: string;
+  project_id: string;
+  name: string;
+  description: string;
+  status: PhaseStatus;
+  order: number; // Phase ordering within project
+  start_date?: string;
+  end_date?: string;
+  estimated_duration_weeks?: number;
+  progress_percentage: number; // 0-100 calculated from task completion
+  task_count: number; // Total tasks in this phase
+  completed_task_count: number; // Completed tasks in this phase
+  color?: string; // UI color theme for the phase
+  dependencies?: string[]; // IDs of phases that must complete first
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+}
+
 // Delivery Task (Implementation work)
 export interface DeliveryTask {
   id: string;
@@ -139,6 +161,7 @@ export interface DeliveryTask {
   priority: 'low' | 'medium' | 'high';
   effort: EffortEstimate;
   assignee?: string;
+  phase_id?: string; // Link to containing phase
   experiment_reference?: string; // Link to supporting experiment
   hypothesis_reference?: string; // Link to supporting hypothesis
   acceptance_criteria: string[];
@@ -289,10 +312,22 @@ export interface DeliveryTaskCreateRequest {
   priority: 'low' | 'medium' | 'high';
   effort: EffortEstimate;
   assignee?: string;
+  phase_id?: string;
   experiment_reference?: string;
   hypothesis_reference?: string;
   acceptance_criteria: string[];
   tags: string[];
+}
+
+export interface PhaseCreateRequest {
+  name: string;
+  description: string;
+  order: number;
+  start_date?: string;
+  end_date?: string;
+  estimated_duration_weeks?: number;
+  color?: string;
+  dependencies?: string[];
 }
 
 // Dashboard/Overview Types
