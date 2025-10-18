@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/SimpleAuthContext';
 // import { useVoiceCommands } from '../../contexts/VoiceCommandsContext'; // Temporarily disabled
 // Task components removed - now using New Agile components
 import DiscoveryPipeline from '../newAgile/DiscoveryPipeline';
-import DeliveryFlow from '../newAgile/DeliveryFlow';
+import DeliveryFlowWorking from '../newAgile/DeliveryFlowWorking';
 import OKRManagement from '../newAgile/OKRManagement';
 import DiscoveryLog from '../newAgile/DiscoveryLog';
 import UserPersonas from '../newAgile/UserPersonas';
@@ -231,7 +231,15 @@ const ProjectDetailsPage: React.FC = () => {
       case 'discovery':
         return <DiscoveryPipeline projectId={id} />;
       case 'delivery':
-        return <DeliveryFlow projectId={id} />;
+        return (
+          <DeliveryFlowWorking
+            projectId={id}
+            projectName={project?.name}
+            tasks={tasks}
+            onTaskCreate={handleCreateTask}
+            onTaskUpdate={handleUpdateTask}
+          />
+        );
       case 'okrs':
         return <OKRManagement projectId={id} />;
       case 'insights':
@@ -341,7 +349,10 @@ const ProjectDetailsPage: React.FC = () => {
                 label: 'Delivery',
                 icon: (
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                    <rect x="3" y="8" width="13" height="8" rx="1" strokeWidth={2} />
+                    <rect x="16" y="10" width="4" height="6" rx="1" strokeWidth={2} />
+                    <circle cx="7" cy="19" r="1.5" strokeWidth={2} />
+                    <circle cx="17" cy="19" r="1.5" strokeWidth={2} />
                   </svg>
                 )
               },

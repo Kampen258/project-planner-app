@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            min-height: 100vh;
+        }
+        .debug-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-box">
+        <h1>🧪 Debug Test Page</h1>
+        <p>✅ <strong>Static HTML is working!</strong></p>
+        <p>✅ <strong>CSS styling is working!</strong></p>
+        <p id="js-test">⏳ Testing JavaScript...</p>
+        <p>Timestamp: <span id="timestamp">Loading...</span></p>
+        <button onclick="testButton()">Test Button Click</button>
+        <div id="button-result"></div>
+    </div>
+
+    <script>
+        console.log('🚀 Debug HTML: JavaScript is executing!');
+
+        // Test basic JavaScript
+        document.getElementById('js-test').innerHTML = '✅ <strong>JavaScript is working!</strong>';
+        document.getElementById('timestamp').innerHTML = new Date().toLocaleString();
+
+        function testButton() {
+            console.log('🎯 Button clicked!');
+            document.getElementById('button-result').innerHTML = '✅ Button click works! ' + new Date().toLocaleTimeString();
+        }
+
+        console.log('🎯 Debug HTML: All tests completed successfully!');
+    </script>
+</body>
+</html>

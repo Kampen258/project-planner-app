@@ -10,6 +10,16 @@ import type {
   DeliveryTaskCreateRequest
 } from '../types/newAgile';
 
+// Check if Supabase is available
+const isSupabaseAvailable = () => {
+  try {
+    return !!(supabase && supabase.from);
+  } catch (error) {
+    console.warn('⚠️ Supabase not available:', error);
+    return false;
+  }
+};
+
 export class NewAgileService {
   // Opportunity Methods
   static async createOpportunity(

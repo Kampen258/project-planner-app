@@ -1,25 +1,11 @@
 import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-// Back to main app with debugging
 import App from './App.tsx'
 
 console.log('🚀 main.tsx: Starting React application...');
 
-const rootElement = document.getElementById('root');
-console.log('📦 main.tsx: Root element found:', rootElement);
-
-if (!rootElement) {
-  console.error('❌ main.tsx: Root element not found!');
-  throw new Error('Root element not found');
-}
-
-console.log('🎯 main.tsx: Creating React root...');
-const root = createRoot(rootElement);
-
-console.log('🎨 main.tsx: Rendering App component...');
-
-// Simple error boundary component
+// Error boundary component
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -38,8 +24,8 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '20px', backgroundColor: '#ffe6e6', minHeight: '100vh' }}>
-          <h1>⚠️ Something went wrong!</h1>
-          <pre style={{ background: '#fff', padding: '10px', border: '1px solid #ddd' }}>
+          <h1>⚠️ App Error!</h1>
+          <pre style={{ background: '#fff', padding: '10px', border: '1px solid #ddd', fontSize: '12px' }}>
             {this.state.error?.toString()}
           </pre>
           <button onClick={() => window.location.reload()} style={{ padding: '10px', marginTop: '10px' }}>
@@ -51,6 +37,19 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+const rootElement = document.getElementById('root');
+console.log('📦 main.tsx: Root element found:', rootElement);
+
+if (!rootElement) {
+  console.error('❌ main.tsx: Root element not found!');
+  throw new Error('Root element not found');
+}
+
+console.log('🎯 main.tsx: Creating React root...');
+const root = createRoot(rootElement);
+
+console.log('🎨 main.tsx: Rendering App with error boundary...');
 
 try {
   root.render(
