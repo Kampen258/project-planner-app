@@ -5,9 +5,9 @@
  * Based on latest best practices 2025
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 const PROJECT_ID = process.env.VITE_SUPABASE_PROJECT_ID || 'msuqglhbfritslvytexf';
 const OUTPUT_PATH = './src/lib/database.types.ts';
