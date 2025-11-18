@@ -51,6 +51,7 @@ npm run stop             # Stop all servers
 Components:          /src/components/{category}/
 Services:            /src/services/
 Types:              /src/types/
+Icons:              /src/assets/icons/
 Database Schema:    /database/*.sql
 Supabase Client:    /src/lib/supabase.ts
 Routes:             /src/App.tsx
@@ -958,6 +959,59 @@ const MyVoiceComponent = () => {
   );
 };
 ```
+
+### Task 6: Use SVG Icons
+
+```typescript
+// Import SVG as React component (Recommended)
+import PlusIcon from '@/assets/icons/plus.svg?react';
+import TrashIcon from '@/assets/icons/trash.svg?react';
+import EditIcon from '@/assets/icons/edit.svg?react';
+
+// Option 1: Direct usage
+const MyComponent = () => {
+  return (
+    <div className="glass-card p-4">
+      <button className="btn-primary">
+        <PlusIcon className="w-5 h-5 mr-2" />
+        Add Task
+      </button>
+
+      <button className="text-error-500 hover:text-error-600">
+        <TrashIcon className="w-5 h-5" />
+      </button>
+    </div>
+  );
+};
+
+// Option 2: Using Icon wrapper component
+import { Icon } from '@/components/common/Icon';
+
+const MyComponent = () => {
+  return (
+    <div className="glass-card p-4">
+      <button className="btn-glass">
+        <Icon
+          component={PlusIcon}
+          size="md"
+          className="text-white/70"
+          aria-label="Add new task"
+        />
+      </button>
+    </div>
+  );
+};
+
+// Option 3: Import as URL (for img tags)
+import iconUrl from '@/assets/icons/logo.svg';
+
+<img src={iconUrl} alt="Logo" className="w-8 h-8" />
+```
+
+**SVG Import Methods:**
+- `import Icon from './icon.svg?react'` - React component (styled with CSS)
+- `import icon from './icon.svg'` - URL string (for img src)
+- `import icon from './icon.svg?raw'` - Raw SVG string (for innerHTML)
 
 ---
 
