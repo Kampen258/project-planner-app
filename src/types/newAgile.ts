@@ -20,12 +20,15 @@ export type InsightCategory = 'interviews' | 'usability_tests' | 'analytics' | '
 // Opportunity (Problem worth solving)
 export interface Opportunity {
   id: string;
+  project_id: string;
   title: string;
   problem_statement: string;
   affected_users: string;
-  evidence: string[];
-  expected_impact: string;
-  constraints: string[];
+  current_state: string;
+  desired_outcome: string;
+  success_metrics: string;
+  evidence: string;
+  assumptions: string;
   cost_of_delay: CostOfDelay;
   confidence: ConfidenceLevel;
   effort: EffortEstimate;
@@ -40,6 +43,7 @@ export interface Opportunity {
 // Hypothesis (Potential solution)
 export interface Hypothesis {
   id: string;
+  project_id: string;
   opportunity_id: string;
   title: string;
   hypothesis_statement: string; // "If we [change], then [users] will [behavior], measured by [metric]"
@@ -64,6 +68,7 @@ export interface Hypothesis {
 // Experiment (Small test to validate)
 export interface Experiment {
   id: string;
+  project_id: string;
   hypothesis_id: string;
   title: string;
   description: string;
@@ -90,6 +95,7 @@ export interface Experiment {
 // Insight (Learning from discovery work)
 export interface Insight {
   id: string;
+  project_id: string;
   title: string;
   description: string;
   category: InsightCategory;
@@ -160,6 +166,7 @@ export interface Phase {
 // Delivery Task (Implementation work)
 export interface DeliveryTask {
   id: string;
+  project_id: string;
   title: string;
   description: string;
   status: DeliveryTaskStatus;
@@ -269,9 +276,11 @@ export interface OpportunityCreateRequest {
   title: string;
   problem_statement: string;
   affected_users: string;
-  evidence: string[];
-  expected_impact: string;
-  constraints: string[];
+  current_state: string;
+  desired_outcome: string;
+  success_metrics: string;
+  evidence: string;
+  assumptions: string;
   cost_of_delay: CostOfDelay;
   confidence: ConfidenceLevel;
   effort: EffortEstimate;
@@ -309,6 +318,18 @@ export interface ExperimentCreateRequest {
     baseline: number;
     target: number;
   }[];
+}
+
+export interface InsightCreateRequest {
+  title: string;
+  description: string;
+  category: InsightCategory;
+  source: string;
+  evidence: string[];
+  impact_level: 'low' | 'medium' | 'high';
+  actionable: boolean;
+  tags: string[];
+  linked_opportunities: string[];
 }
 
 export interface DeliveryTaskCreateRequest {

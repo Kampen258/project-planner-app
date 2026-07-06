@@ -69,6 +69,7 @@ export type Database = {
           context?: Json | null
           success_score?: number | null
         }
+        Relationships: []
       }
       tasks: {
         Row: {
@@ -122,6 +123,7 @@ export type Database = {
           assigned_to?: string | null
           completed_at?: string | null
         }
+        Relationships: []
       }
       users: {
         Row: {
@@ -157,6 +159,7 @@ export type Database = {
           stripe_customer_id?: string | null
           profile_data?: Json | null
         }
+        Relationships: []
       }
       team_members: {
         Row: {
@@ -186,6 +189,7 @@ export type Database = {
           joined_at?: string | null
           status?: string | null
         }
+        Relationships: []
       }
       team_activities: {
         Row: {
@@ -215,6 +219,7 @@ export type Database = {
           metadata?: Json | null
           created_at?: string | null
         }
+        Relationships: []
       }
       interview_sessions: {
         Row: {
@@ -256,6 +261,7 @@ export type Database = {
           created_at?: string | null
           completed_at?: string | null
         }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -276,6 +282,328 @@ export type Database = {
           role?: 'admin' | 'user' | 'moderator'
           created_at?: string
         }
+        Relationships: []
+      }
+      // Discovery-track tables (Sprint 2). Hand-authored to match
+      // database/migrations/add_discovery_system.sql — regenerate this whole
+      // file with `npm run db:generate-types` after applying the migration.
+      opportunities: {
+        Row: {
+          id: string
+          project_id: string
+          title: string
+          problem_statement: string | null
+          affected_users: string | null
+          current_state: string | null
+          desired_outcome: string | null
+          success_metrics: string | null
+          evidence: string | null
+          assumptions: string | null
+          confidence: number | null
+          effort: 'S' | 'M' | 'L' | null
+          risk: 'low' | 'medium' | 'high' | null
+          cost_of_delay: 'low' | 'medium' | 'high' | null
+          status: 'backlog' | 'researching' | 'validated' | 'archived'
+          objective_id: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          title: string
+          problem_statement?: string | null
+          affected_users?: string | null
+          current_state?: string | null
+          desired_outcome?: string | null
+          success_metrics?: string | null
+          evidence?: string | null
+          assumptions?: string | null
+          confidence?: number | null
+          effort?: 'S' | 'M' | 'L' | null
+          risk?: 'low' | 'medium' | 'high' | null
+          cost_of_delay?: 'low' | 'medium' | 'high' | null
+          status?: 'backlog' | 'researching' | 'validated' | 'archived'
+          objective_id?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          title?: string
+          problem_statement?: string | null
+          affected_users?: string | null
+          current_state?: string | null
+          desired_outcome?: string | null
+          success_metrics?: string | null
+          evidence?: string | null
+          assumptions?: string | null
+          confidence?: number | null
+          effort?: 'S' | 'M' | 'L' | null
+          risk?: 'low' | 'medium' | 'high' | null
+          cost_of_delay?: 'low' | 'medium' | 'high' | null
+          status?: 'backlog' | 'researching' | 'validated' | 'archived'
+          objective_id?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hypotheses: {
+        Row: {
+          id: string
+          project_id: string
+          opportunity_id: string | null
+          title: string
+          hypothesis_statement: string | null
+          assumptions: Json
+          test_method: string | null
+          success_criteria: string | null
+          scale_threshold: string | null
+          iterate_threshold: string | null
+          kill_threshold: string | null
+          resources_needed: Json
+          status: 'draft' | 'in_test' | 'learning' | 'scaled' | 'killed' | 'archived'
+          experiment_id: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          opportunity_id?: string | null
+          title: string
+          hypothesis_statement?: string | null
+          assumptions?: Json
+          test_method?: string | null
+          success_criteria?: string | null
+          scale_threshold?: string | null
+          iterate_threshold?: string | null
+          kill_threshold?: string | null
+          resources_needed?: Json
+          status?: 'draft' | 'in_test' | 'learning' | 'scaled' | 'killed' | 'archived'
+          experiment_id?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          opportunity_id?: string | null
+          title?: string
+          hypothesis_statement?: string | null
+          assumptions?: Json
+          test_method?: string | null
+          success_criteria?: string | null
+          scale_threshold?: string | null
+          iterate_threshold?: string | null
+          kill_threshold?: string | null
+          resources_needed?: Json
+          status?: 'draft' | 'in_test' | 'learning' | 'scaled' | 'killed' | 'archived'
+          experiment_id?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      experiments: {
+        Row: {
+          id: string
+          project_id: string
+          hypothesis_id: string | null
+          title: string
+          description: string | null
+          start_date: string | null
+          end_date: string | null
+          participants: number
+          method: 'ab_test' | 'prototype' | 'concierge' | 'interview' | 'analytics' | 'survey' | null
+          success_metrics: Json
+          status: 'planned' | 'running' | 'completed' | 'cancelled'
+          results: string
+          decision: 'scale' | 'iterate' | 'kill' | 'pending'
+          next_steps: string
+          insights: Json
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          hypothesis_id?: string | null
+          title: string
+          description?: string | null
+          start_date?: string | null
+          end_date?: string | null
+          participants?: number
+          method?: 'ab_test' | 'prototype' | 'concierge' | 'interview' | 'analytics' | 'survey' | null
+          success_metrics?: Json
+          status?: 'planned' | 'running' | 'completed' | 'cancelled'
+          results?: string
+          decision?: 'scale' | 'iterate' | 'kill' | 'pending'
+          next_steps?: string
+          insights?: Json
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          hypothesis_id?: string | null
+          title?: string
+          description?: string | null
+          start_date?: string | null
+          end_date?: string | null
+          participants?: number
+          method?: 'ab_test' | 'prototype' | 'concierge' | 'interview' | 'analytics' | 'survey' | null
+          success_metrics?: Json
+          status?: 'planned' | 'running' | 'completed' | 'cancelled'
+          results?: string
+          decision?: 'scale' | 'iterate' | 'kill' | 'pending'
+          next_steps?: string
+          insights?: Json
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      insights: {
+        Row: {
+          id: string
+          project_id: string
+          title: string
+          description: string | null
+          category: 'interviews' | 'usability_tests' | 'analytics' | 'surveys' | 'other' | null
+          source: string | null
+          evidence: Json
+          impact_level: 'low' | 'medium' | 'high'
+          actionable: boolean
+          tags: Json
+          linked_opportunities: Json
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          title: string
+          description?: string | null
+          category?: 'interviews' | 'usability_tests' | 'analytics' | 'surveys' | 'other' | null
+          source?: string | null
+          evidence?: Json
+          impact_level?: 'low' | 'medium' | 'high'
+          actionable?: boolean
+          tags?: Json
+          linked_opportunities?: Json
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          title?: string
+          description?: string | null
+          category?: 'interviews' | 'usability_tests' | 'analytics' | 'surveys' | 'other' | null
+          source?: string | null
+          evidence?: Json
+          impact_level?: 'low' | 'medium' | 'high'
+          actionable?: boolean
+          tags?: Json
+          linked_opportunities?: Json
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      delivery_tasks: {
+        Row: {
+          id: string
+          project_id: string
+          title: string
+          description: string | null
+          status: 'ready' | 'in_progress' | 'review' | 'released' | 'measuring'
+          priority: 'low' | 'medium' | 'high'
+          effort: 'S' | 'M' | 'L' | null
+          assignee: string | null
+          phase_id: string | null
+          experiment_reference: string | null
+          hypothesis_reference: string | null
+          acceptance_criteria: Json
+          definition_of_ready: Json
+          definition_of_done: Json
+          started_at: string | null
+          completed_at: string | null
+          cycle_time: number | null
+          blocked: boolean
+          blocked_reason: string | null
+          tags: Json
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          title: string
+          description?: string | null
+          status?: 'ready' | 'in_progress' | 'review' | 'released' | 'measuring'
+          priority?: 'low' | 'medium' | 'high'
+          effort?: 'S' | 'M' | 'L' | null
+          assignee?: string | null
+          phase_id?: string | null
+          experiment_reference?: string | null
+          hypothesis_reference?: string | null
+          acceptance_criteria?: Json
+          definition_of_ready?: Json
+          definition_of_done?: Json
+          started_at?: string | null
+          completed_at?: string | null
+          cycle_time?: number | null
+          blocked?: boolean
+          blocked_reason?: string | null
+          tags?: Json
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          title?: string
+          description?: string | null
+          status?: 'ready' | 'in_progress' | 'review' | 'released' | 'measuring'
+          priority?: 'low' | 'medium' | 'high'
+          effort?: 'S' | 'M' | 'L' | null
+          assignee?: string | null
+          phase_id?: string | null
+          experiment_reference?: string | null
+          hypothesis_reference?: string | null
+          acceptance_criteria?: Json
+          definition_of_ready?: Json
+          definition_of_done?: Json
+          started_at?: string | null
+          completed_at?: string | null
+          cycle_time?: number | null
+          blocked?: boolean
+          blocked_reason?: string | null
+          tags?: Json
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

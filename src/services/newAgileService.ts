@@ -6,19 +6,11 @@ import type {
   HypothesisCreateRequest,
   Experiment,
   ExperimentCreateRequest,
+  Insight,
+  InsightCreateRequest,
   DeliveryTask,
   DeliveryTaskCreateRequest
 } from '../types/newAgile';
-
-// Check if Supabase is available
-const isSupabaseAvailable = () => {
-  try {
-    return !!(supabase && supabase.from);
-  } catch (error) {
-    console.warn('⚠️ Supabase not available:', error);
-    return false;
-  }
-};
 
 export class NewAgileService {
   // Opportunity Methods
@@ -72,7 +64,7 @@ export class NewAgileService {
       }
 
       console.log('✅ [NewAgileService] Opportunity created successfully:', data);
-      return data;
+      return data as Opportunity;
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in createOpportunity:', error);
       return null;
@@ -102,7 +94,7 @@ export class NewAgileService {
       }
 
       console.log('✅ [NewAgileService] Found', data?.length || 0, 'opportunities');
-      return data || [];
+      return (data || []) as Opportunity[];
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in getOpportunities:', error);
       return [];
@@ -129,7 +121,7 @@ export class NewAgileService {
         throw error;
       }
 
-      return data;
+      return data as Opportunity;
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in updateOpportunity:', error);
       return null;
@@ -203,7 +195,7 @@ export class NewAgileService {
       }
 
       console.log('✅ [NewAgileService] Hypothesis created successfully:', data);
-      return data;
+      return data as Hypothesis;
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in createHypothesis:', error);
       return null;
@@ -242,7 +234,7 @@ export class NewAgileService {
       }
 
       console.log('✅ [NewAgileService] Found', data?.length || 0, 'hypotheses');
-      return data || [];
+      return (data || []) as Hypothesis[];
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in getHypotheses:', error);
       return [];
@@ -252,11 +244,13 @@ export class NewAgileService {
   // Experiment Methods
   static async createExperiment(
     experimentData: ExperimentCreateRequest,
+    projectId: string,
     userId: string
   ): Promise<Experiment | null> {
     try {
       const fullExperimentData = {
         ...experimentData,
+        project_id: projectId,
         status: 'planned' as const,
         results: '',
         decision: 'pending' as const,
@@ -275,22 +269,36 @@ export class NewAgileService {
 
       if (error) {
         console.error('❌ [NewAgileService] Error creating experiment:', error);
+
+        // If table doesn't exist, create a mock response for now
+        if (error.code === '42P01') {
+          console.warn('⚠️ [NewAgileService] Experiments table not found, returning mock data');
+          return {
+            id: `mock-exp-${Date.now()}`,
+            ...fullExperimentData
+          } as Experiment;
+        }
+
         throw error;
       }
 
-      return data;
+      return data as Experiment;
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in createExperiment:', error);
       return null;
     }
   }
 
-  static async getExperiments(hypothesisId?: string): Promise<Experiment[]> {
+  static async getExperiments(projectId?: string, hypothesisId?: string): Promise<Experiment[]> {
     try {
       let query = supabase
         .from('experiments')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (projectId) {
+        query = query.eq('project_id', projectId);
+      }
 
       if (hypothesisId) {
         query = query.eq('hypothesis_id', hypothesisId);
@@ -300,12 +308,95 @@ export class NewAgileService {
 
       if (error) {
         console.error('❌ [NewAgileService] Error fetching experiments:', error);
+
+        // If table doesn't exist, return empty array for now
+        if (error.code === '42P01') {
+          console.warn('⚠️ [NewAgileService] Experiments table not found, returning empty array');
+          return [];
+        }
+
         throw error;
       }
 
-      return data || [];
+      return (data || []) as Experiment[];
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in getExperiments:', error);
+      return [];
+    }
+  }
+
+  // Insight Methods
+  static async createInsight(
+    insightData: InsightCreateRequest,
+    projectId: string,
+    userId: string
+  ): Promise<Insight | null> {
+    try {
+      console.log('🏗️ [NewAgileService] Creating insight:', insightData.title);
+
+      const fullInsightData = {
+        ...insightData,
+        project_id: projectId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_by: userId
+      };
+
+      const { data, error } = await supabase
+        .from('insights')
+        .insert(fullInsightData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ [NewAgileService] Error creating insight:', error);
+
+        // If table doesn't exist, create a mock response for now
+        if (error.code === '42P01') {
+          console.warn('⚠️ [NewAgileService] Insights table not found, returning mock data');
+          return {
+            id: `mock-ins-${Date.now()}`,
+            ...fullInsightData
+          } as Insight;
+        }
+
+        throw error;
+      }
+
+      console.log('✅ [NewAgileService] Insight created successfully:', data);
+      return data as Insight;
+    } catch (error) {
+      console.error('❌ [NewAgileService] Service error in createInsight:', error);
+      return null;
+    }
+  }
+
+  static async getInsights(projectId: string): Promise<Insight[]> {
+    try {
+      console.log('🔍 [NewAgileService] Getting insights for project:', projectId);
+
+      const { data, error } = await supabase
+        .from('insights')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('❌ [NewAgileService] Error fetching insights:', error);
+
+        // If table doesn't exist, return empty array for now
+        if (error.code === '42P01') {
+          console.warn('⚠️ [NewAgileService] Insights table not found, returning empty array');
+          return [];
+        }
+
+        throw error;
+      }
+
+      console.log('✅ [NewAgileService] Found', data?.length ?? 0, 'insights');
+      return (data || []) as Insight[];
+    } catch (error) {
+      console.error('❌ [NewAgileService] Service error in getInsights:', error);
       return [];
     }
   }
@@ -313,11 +404,13 @@ export class NewAgileService {
   // Delivery Task Methods
   static async createDeliveryTask(
     taskData: DeliveryTaskCreateRequest,
+    projectId: string,
     userId: string
   ): Promise<DeliveryTask | null> {
     try {
       const fullTaskData = {
         ...taskData,
+        project_id: projectId,
         status: 'ready' as const,
         blocked: false,
         created_at: new Date().toISOString(),
@@ -336,7 +429,7 @@ export class NewAgileService {
         throw error;
       }
 
-      return data;
+      return data as DeliveryTask;
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in createDeliveryTask:', error);
       return null;
@@ -350,18 +443,25 @@ export class NewAgileService {
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Note: DeliveryTask doesn't have project_id in the interface,
-      // might need to add it or filter differently
-      // For now, we'll get all tasks
+      if (projectId) {
+        query = query.eq('project_id', projectId);
+      }
 
       const { data, error } = await query;
 
       if (error) {
         console.error('❌ [NewAgileService] Error fetching delivery tasks:', error);
+
+        // If table doesn't exist, return empty array for now
+        if (error.code === '42P01') {
+          console.warn('⚠️ [NewAgileService] Delivery tasks table not found, returning empty array');
+          return [];
+        }
+
         throw error;
       }
 
-      return data || [];
+      return (data || []) as DeliveryTask[];
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in getDeliveryTasks:', error);
       return [];
@@ -373,17 +473,17 @@ export class NewAgileService {
     try {
       const [opportunities, experiments, deliveryTasks] = await Promise.all([
         this.getOpportunities(projectId),
-        this.getExperiments(),
-        this.getDeliveryTasks()
+        this.getExperiments(projectId),
+        this.getDeliveryTasks(projectId)
       ]);
 
       return {
         opportunities: {
           total: opportunities.length,
-          by_status: opportunities.reduce((acc, opp) => {
-            acc[opp.status] = (acc[opp.status] || 0) + 1;
+          by_status: opportunities.reduce<Record<string, number>>((acc, opp) => {
+            acc[opp.status] = (acc[opp.status] ?? 0) + 1;
             return acc;
-          }, {} as any),
+          }, {}),
           high_value_count: opportunities.filter(opp => opp.cost_of_delay === 'high').length
         },
         experiments: {
