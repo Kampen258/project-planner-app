@@ -8,7 +8,7 @@ interface HypothesisModalProps {
   projectId: string;
 }
 
-const HypothesisModal: React.FC<HypothesisModalProps> = ({ isOpen, onClose, onSave, projectId }) => {
+const HypothesisModal: React.FC<HypothesisModalProps> = ({ isOpen, onClose, onSave }) => {
   const [showInfo, setShowInfo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -542,7 +542,7 @@ const HypothesisModal: React.FC<HypothesisModalProps> = ({ isOpen, onClose, onSa
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-2">Create New Hypothesis</h3>
-                    <p className="text-white/70">{steps[currentStep - 1].description}</p>
+                    <p className="text-white/70">{steps[currentStep - 1]?.description}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button

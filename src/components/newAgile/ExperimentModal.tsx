@@ -8,7 +8,7 @@ interface ExperimentModalProps {
   projectId: string;
 }
 
-const ExperimentModal: React.FC<ExperimentModalProps> = ({ isOpen, onClose, onSave, projectId }) => {
+const ExperimentModal: React.FC<ExperimentModalProps> = ({ isOpen, onClose, onSave }) => {
   const [showInfo, setShowInfo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -465,7 +465,7 @@ const ExperimentModal: React.FC<ExperimentModalProps> = ({ isOpen, onClose, onSa
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-2">Create New Experiment</h3>
-                    <p className="text-white/70">{steps[currentStep - 1].description}</p>
+                    <p className="text-white/70">{steps[currentStep - 1]?.description}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button

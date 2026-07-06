@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { OpportunityCreateRequest, OpportunityStatus, ConfidenceLevel, EffortEstimate, RiskLevel, CostOfDelay } from '../../types/newAgile';
+import type { OpportunityCreateRequest, ConfidenceLevel } from '../../types/newAgile';
 
 interface OpportunityModalProps {
   isOpen: boolean;
@@ -8,7 +8,7 @@ interface OpportunityModalProps {
   projectId: string;
 }
 
-const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, onSave, projectId }) => {
+const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, onSave }) => {
   const [showInfo, setShowInfo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +42,10 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
     success_metrics: '',
     evidence: '',
     assumptions: '',
-    confidence_level: 'medium' as ConfidenceLevel,
-    effort_estimate: 'medium' as EffortEstimate,
-    risk_level: 'medium' as RiskLevel,
-    cost_of_delay: 'medium' as CostOfDelay,
+    confidence: 5,
+    effort: 'M',
+    risk: 'medium',
+    cost_of_delay: 'medium',
   });
 
   const handleChange = (
@@ -54,7 +54,8 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      // confidence is the only numeric field in the form
+      [name]: name === 'confidence' ? (Number(value) as ConfidenceLevel) : value
     }));
   };
 
@@ -200,17 +201,19 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">
-                  Confidence Level
+                  Confidence (1-10)
                 </label>
                 <select
-                  name="confidence_level"
-                  value={formData.confidence_level}
+                  name="confidence"
+                  value={formData.confidence}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                 >
-                  <option value="low" className="bg-gray-800">Low - High uncertainty</option>
-                  <option value="medium" className="bg-gray-800">Medium - Some validation needed</option>
-                  <option value="high" className="bg-gray-800">High - Strong evidence</option>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(level => (
+                    <option key={level} value={level} className="bg-gray-800">
+                      {level} - {level <= 3 ? 'High uncertainty' : level <= 6 ? 'Some validation needed' : 'Strong evidence'}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -219,14 +222,14 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
                   Effort Estimate
                 </label>
                 <select
-                  name="effort_estimate"
-                  value={formData.effort_estimate}
+                  name="effort"
+                  value={formData.effort}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                 >
-                  <option value="small" className="bg-gray-800">Small - Days to weeks</option>
-                  <option value="medium" className="bg-gray-800">Medium - Weeks to months</option>
-                  <option value="large" className="bg-gray-800">Large - Months+</option>
+                  <option value="S" className="bg-gray-800">S - Days to weeks</option>
+                  <option value="M" className="bg-gray-800">M - Weeks to months</option>
+                  <option value="L" className="bg-gray-800">L - Months+</option>
                 </select>
               </div>
 
@@ -235,8 +238,8 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
                   Risk Level
                 </label>
                 <select
-                  name="risk_level"
-                  value={formData.risk_level}
+                  name="risk"
+                  value={formData.risk}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
                 >
@@ -292,10 +295,10 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
       success_metrics: '',
       evidence: '',
       assumptions: '',
-      confidence_level: 'medium' as ConfidenceLevel,
-      effort_estimate: 'medium' as EffortEstimate,
-      risk_level: 'medium' as RiskLevel,
-      cost_of_delay: 'medium' as CostOfDelay,
+      confidence: 5,
+      effort: 'M',
+      risk: 'medium',
+      cost_of_delay: 'medium',
     });
   };
 
@@ -385,13 +388,13 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
         <div className="pointer-events-auto">
           {/* Modal */}
           <div className="relative w-full max-w-4xl bg-gray-800/70 backdrop-blur-md border border-gray-600/20 rounded-2xl animate-scale-in max-h-[90vh] overflow-y-auto">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={(e) => { void handleSubmit(e); }}>
               {/* Header */}
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-2">Create New Opportunity</h3>
-                    <p className="text-white/70">{steps[currentStep - 1].description}</p>
+                    <p className="text-white/70">{steps[currentStep - 1]?.description}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button

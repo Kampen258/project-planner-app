@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import type { Insight, InsightCategory } from '../../types/newAgile';
+import React, { useState, useEffect, useCallback } from 'react';
+import type { Insight, InsightCategory, InsightCreateRequest } from '../../types/newAgile';
+import InsightModal from './InsightModal';
+import { useAuth } from '../../contexts/SimpleAuthContext';
+import { NewAgileService } from '../../services/newAgileService';
 
 interface DiscoveryLogProps {
   projectId: string;
@@ -9,14 +12,40 @@ interface DiscoveryLogProps {
 type TabType = 'all' | InsightCategory;
 
 const DiscoveryLog: React.FC<DiscoveryLogProps> = ({ projectId, className = '' }) => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [showInsightModal, setShowInsightModal] = useState(false);
 
-  // Mock data - in real app this would come from API
-  const insights: Insight[] = [];
+  const loadInsights = useCallback(async () => {
+    const data = await NewAgileService.getInsights(projectId);
+    setInsights(data);
+  }, [projectId]);
+
+  useEffect(() => {
+    void loadInsights();
+  }, [loadInsights]);
 
   const handleNewInsight = () => {
-    // TODO: Open insight creation modal
-    console.log('Creating new insight');
+    setShowInsightModal(true);
+  };
+
+  const handleSaveInsight = async (insightData: InsightCreateRequest) => {
+    const result = await NewAgileService.createInsight(
+      insightData,
+      projectId,
+      user?.id ?? 'anonymous'
+    );
+
+    if (result) {
+      console.log('✅ Insight saved successfully:', result);
+      // Append immediately (works even when the DB is unreachable and the
+      // service returns its mock fallback), then refetch for DB truth.
+      setInsights(prev => [result, ...prev]);
+      void loadInsights();
+    } else {
+      throw new Error('Failed to create insight');
+    }
   };
 
   const getFilteredInsights = () => {
@@ -219,7 +248,7 @@ const DiscoveryLog: React.FC<DiscoveryLogProps> = ({ projectId, className = '' }
               }`}
             >
               <div className="flex items-center space-x-2">
-                {tab.id !== 'all' && getCategoryIcon(tab.id as InsightCategory)}
+                {tab.id !== 'all' && getCategoryIcon(tab.id)}
                 <span>{tab.label}</span>
                 <span className="text-xs bg-white/10 px-1.5 py-0.5 rounded">
                   {tab.count}
@@ -242,6 +271,14 @@ const DiscoveryLog: React.FC<DiscoveryLogProps> = ({ projectId, className = '' }
           </div>
         )}
       </div>
+
+      {/* Insight Modal */}
+      <InsightModal
+        isOpen={showInsightModal}
+        onClose={() => setShowInsightModal(false)}
+        onSave={handleSaveInsight}
+        projectId={projectId}
+      />
     </div>
   );
 };
