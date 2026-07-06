@@ -12,6 +12,13 @@ import type {
   DeliveryTaskCreateRequest
 } from '../types/newAgile';
 
+
+// Treat "table missing" (42P01: migration not yet applied) and a network-
+// unreachable Supabase the same way: fall back to mock data / empty lists so
+// the discovery UI stays usable in development environments.
+const isTableMissingOrOffline = (error: { code?: string; message?: string }): boolean =>
+  error.code === '42P01' || (error.message ?? '').toLowerCase().includes('fetch');
+
 export class NewAgileService {
   // Opportunity Methods
   static async createOpportunity(
@@ -52,7 +59,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error details:', JSON.stringify(error, null, 2));
 
         // If table doesn't exist, create a mock response for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Opportunities table not found, returning mock data');
           return {
             id: `mock-opp-${Date.now()}`,
@@ -85,7 +92,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error fetching opportunities:', error);
 
         // If table doesn't exist, return empty array for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Opportunities table not found, returning empty array');
           return [];
         }
@@ -183,7 +190,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error details:', JSON.stringify(error, null, 2));
 
         // If table doesn't exist, create a mock response for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Hypotheses table not found, returning mock data');
           return {
             id: `mock-hyp-${Date.now()}`,
@@ -225,7 +232,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error fetching hypotheses:', error);
 
         // If table doesn't exist, return empty array for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Hypotheses table not found, returning empty array');
           return [];
         }
@@ -271,7 +278,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error creating experiment:', error);
 
         // If table doesn't exist, create a mock response for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Experiments table not found, returning mock data');
           return {
             id: `mock-exp-${Date.now()}`,
@@ -310,7 +317,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error fetching experiments:', error);
 
         // If table doesn't exist, return empty array for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Experiments table not found, returning empty array');
           return [];
         }
@@ -352,7 +359,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error creating insight:', error);
 
         // If table doesn't exist, create a mock response for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Insights table not found, returning mock data');
           return {
             id: `mock-ins-${Date.now()}`,
@@ -385,7 +392,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error fetching insights:', error);
 
         // If table doesn't exist, return empty array for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Insights table not found, returning empty array');
           return [];
         }
@@ -453,7 +460,7 @@ export class NewAgileService {
         console.error('❌ [NewAgileService] Error fetching delivery tasks:', error);
 
         // If table doesn't exist, return empty array for now
-        if (error.code === '42P01') {
+        if (isTableMissingOrOffline(error)) {
           console.warn('⚠️ [NewAgileService] Delivery tasks table not found, returning empty array');
           return [];
         }

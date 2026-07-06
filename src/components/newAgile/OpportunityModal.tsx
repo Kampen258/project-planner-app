@@ -485,6 +485,7 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
 
                   {currentStep < steps.length ? (
                     <button
+                      key="wizard-next"
                       type="button"
                       onClick={nextStep}
                       disabled={loading}
@@ -497,6 +498,7 @@ const OpportunityModal: React.FC<OpportunityModalProps> = ({ isOpen, onClose, on
                     </button>
                   ) : (
                     <button
+                      key="wizard-submit"
                       type="submit"
                       disabled={loading}
                       className="px-8 py-3 btn-glass hover:bg-white/20 text-white rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"

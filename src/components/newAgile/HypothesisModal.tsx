@@ -633,6 +633,7 @@ const HypothesisModal: React.FC<HypothesisModalProps> = ({ isOpen, onClose, onSa
 
                   {currentStep < steps.length ? (
                     <button
+                      key="wizard-next"
                       type="button"
                       onClick={nextStep}
                       disabled={loading}
@@ -645,6 +646,7 @@ const HypothesisModal: React.FC<HypothesisModalProps> = ({ isOpen, onClose, onSa
                     </button>
                   ) : (
                     <button
+                      key="wizard-submit"
                       type="submit"
                       disabled={loading}
                       className="px-8 py-3 btn-glass hover:bg-white/20 text-white rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-2"

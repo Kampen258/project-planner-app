@@ -1,7 +1,7 @@
 # ProjectFlow App - Gap Analysis
 *Current State vs New Agile User Manual Requirements*
 
-> **Status update 2026-07-06:** Several features originally marked MISSING now have UI implementations in `src/components/newAgile/` and `src/components/okr/` (see per-section notes below). The common remaining gap is persistence: most New Agile UI runs on mock data because the discovery/flow database tables have not been created (only `database/migrations/add_okr_system.sql` exists).
+> **Status update 2026-07-06 (Sprint 2):** Discovery persistence is now implemented — `database/migrations/add_discovery_system.sql` creates opportunities/hypotheses/experiments/insights/delivery_tasks tables (with dev-mode RLS), `newAgileService` is fully typed against them, and the Discovery Pipeline + Discovery Log UI load and save real data. Remaining persistence gaps: Decisions (Sprint 3), delivery flow UI wiring, and OKR service auth (`okrService` requires a real Supabase session).
 
 ## Current App Analysis
 
@@ -55,12 +55,12 @@
 - Quarterly review cycles
 - Project ↔ OKR linking in project creation flow
 
-### 3. **Discovery Track Features** - PARTIAL (was MISSING)
-**Current:** UI implemented — `OpportunityModal.tsx`, `HypothesisModal.tsx`, `ExperimentModal.tsx`, `DiscoveryLog.tsx`
+### 3. **Discovery Track Features** - MOSTLY DONE (Sprint 2)
+**Current:** Full create/list flow works — tables (opportunities, hypotheses, experiments, insights), typed service methods, wizard modals, and a new InsightModal. Apply `add_discovery_system.sql` to enable persistence.
 **Remaining gap:**
-- Database tables (opportunities, hypotheses, experiments, insights) — UI runs on mock data
-- Experiment timers
+- Experiment timers (auto-move In Test → Learning)
 - Evidence linking (analytics, research, support tickets)
+- Edit/status-transition UI for pipeline items (create/list only today)
 
 ### 4. **Flow Metrics & Analytics** - MOSTLY MISSING
 **Required:** Comprehensive flow tracking

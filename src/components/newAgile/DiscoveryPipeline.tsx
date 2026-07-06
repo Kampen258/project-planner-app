@@ -82,10 +82,9 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
 
       if (result) {
         console.log('✅ Opportunity saved successfully:', result);
-        // Append immediately (works even when the DB is unreachable and the
-        // service returns its mock fallback), then refetch for DB truth.
+        // The service returns the inserted row, so appending keeps the list
+        // accurate — and still works offline via the service's mock fallback.
         setOpportunities(prev => [result, ...prev]);
-        void loadPipeline();
       } else {
         throw new Error('Failed to create opportunity');
       }
@@ -110,7 +109,6 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
       if (result) {
         console.log('✅ Hypothesis saved successfully:', result);
         setHypotheses(prev => [result, ...prev]);
-        void loadPipeline();
       } else {
         throw new Error('Failed to create hypothesis');
       }
@@ -135,7 +133,6 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
       if (result) {
         console.log('✅ Experiment saved successfully:', result);
         setExperiments(prev => [result, ...prev]);
-        void loadPipeline();
       } else {
         throw new Error('Failed to create experiment');
       }

@@ -39,10 +39,9 @@ const DiscoveryLog: React.FC<DiscoveryLogProps> = ({ projectId, className = '' }
 
     if (result) {
       console.log('✅ Insight saved successfully:', result);
-      // Append immediately (works even when the DB is unreachable and the
-      // service returns its mock fallback), then refetch for DB truth.
+      // The service returns the inserted row, so appending keeps the list
+      // accurate — and still works offline via the service's mock fallback.
       setInsights(prev => [result, ...prev]);
-      void loadInsights();
     } else {
       throw new Error('Failed to create insight');
     }
