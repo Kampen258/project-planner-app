@@ -27,7 +27,6 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<DocumentTypeFilter>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [expandedDocument, setExpandedDocument] = useState<string | null>(null);
 
   useEffect(() => {
@@ -257,7 +256,6 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
       if (result.success && result.document) {
         setDocuments(prev => [result.document!, ...prev]);
         setShowCreateModal(false);
-        setSelectedTemplate(null);
       }
     } catch (error) {
       console.error('Error creating document:', error);
@@ -454,7 +452,7 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
                   {isExpanded && document.content?.sections && (
                     <div className="border-t border-white/10 p-4 bg-white/5">
                       <div className="space-y-6">
-                        {document.content.sections.map((section: any, sectionIndex: number) => (
+                        {document.content.sections.map((section: { title: string; items?: string[] }, sectionIndex: number) => (
                           <div key={sectionIndex}>
                             <h4 className="font-medium text-white mb-3 flex items-center space-x-2">
                               <span className="w-2 h-2 bg-white/60 rounded-full"></span>

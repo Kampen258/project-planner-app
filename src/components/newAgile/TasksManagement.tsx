@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import type { Task } from '../../types';
 import ClipboardIcon from '../../assets/icons/clipboard.svg?react';
 import NoteIcon from '../../assets/icons/note.svg?react';
 import RocketIcon from '../../assets/icons/rocket.svg?react';
@@ -31,18 +30,28 @@ type AllTaskStatus =
   | 'blocked'      // Cannot proceed
   | 'cancelled';   // Task cancelled/abandoned
 
+interface ProjectTask {
+  id: string;
+  title: string;
+  status: AllTaskStatus;
+  priority: 'low' | 'medium' | 'high';
+  phaseId: string;
+  description: string;
+  project_id: string;
+}
+
 const TasksManagement: React.FC<TasksManagementProps> = ({
   projectId,
   projectName,
   className = '',
   selectedPhaseId
 }) => {
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<ProjectTask[]>([]);
   const [activeStatusFilter, setActiveStatusFilter] = useState<AllTaskStatus | 'all'>('all');
   const [loading, setLoading] = useState(true);
 
   // Get comprehensive mock tasks for the project with all statuses
-  const getMockTasksForProject = (projectId: string) => {
+  const getMockTasksForProject = (projectId: string): ProjectTask[] => {
     return [
       // Backlog items
       { id: `${projectId}-b1`, title: 'Future feature: Advanced analytics', status: 'backlog', priority: 'low', phaseId: 'phase-6', description: 'Long-term enhancement idea', project_id: projectId },
@@ -154,12 +163,12 @@ const TasksManagement: React.FC<TasksManagementProps> = ({
   });
 
   // Group tasks by status
-  const tasksByStatus = filteredTasks.reduce((acc, task) => {
+  const tasksByStatus = filteredTasks.reduce<Record<string, ProjectTask[]>>((acc, task) => {
     const status = task.status;
-    if (!acc[status]) acc[status] = [];
+    acc[status] ??= [];
     acc[status].push(task);
     return acc;
-  }, {} as Record<string, any[]>);
+  }, {});
 
   // Status tabs
   const statusTabs = [
@@ -274,7 +283,7 @@ const TasksManagement: React.FC<TasksManagementProps> = ({
             <div className="mb-4">
               <p className="text-white/70">
                 {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
-                {activeStatusFilter !== 'all' && ` with status "${getStatusConfig(activeStatusFilter).label}"`}
+                {` with status "${getStatusConfig(activeStatusFilter).label}"`}
                 {selectedPhaseId && ` in ${selectedPhaseId.replace('phase-', 'Phase ')}`}
               </p>
             </div>

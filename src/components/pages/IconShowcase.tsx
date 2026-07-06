@@ -20,6 +20,7 @@ import UsersIcon from '../../assets/icons/users.svg?react';
 import PlusIcon from '../../assets/icons/plus.svg?react';
 import TrashIcon from '../../assets/icons/trash.svg?react';
 import EditIcon from '../../assets/icons/edit.svg?react';
+import SwitcherIcon from '../../assets/icons/switcher.svg?react';
 
 /**
  * Icon Showcase Component
@@ -37,8 +38,8 @@ export const IconShowcase: React.FC = () => {
     { name: 'check-circle', component: CheckCircleIcon, usage: 'Done, Completed' },
     { name: 'party', component: PartyIcon, usage: 'Released, Celebration' },
     { name: 'chart-bar', component: ChartBarIcon, usage: 'Metrics, Measuring' },
-    { name: 'x-circle', component: XCircleIcon, usage: 'Blocked, Error' },
-    { name: 'ban', component: BanIcon, usage: 'Cancelled, Prohibited' },
+    { name: 'x-circle', component: XCircleIcon, usage: 'Cancelled, Error' },
+    { name: 'ban', component: BanIcon, usage: 'Blocked, Prohibited' },
     { name: 'document', component: DocumentIcon, usage: 'Documents' },
     { name: 'building', component: BuildingIcon, usage: 'Architecture' },
     { name: 'flask', component: FlaskIcon, usage: 'Testing, Experiments' },
@@ -47,6 +48,7 @@ export const IconShowcase: React.FC = () => {
     { name: 'plus', component: PlusIcon, usage: 'Add, Create' },
     { name: 'trash', component: TrashIcon, usage: 'Delete, Remove' },
     { name: 'edit', component: EditIcon, usage: 'Edit, Modify' },
+    { name: 'switcher', component: SwitcherIcon, usage: 'Switcher persona, Sync' },
   ];
 
   return (

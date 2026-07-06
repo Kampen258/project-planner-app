@@ -2,15 +2,16 @@ import React from 'react';
 import type { UserPersona } from '../../types/newAgile';
 import UsersIcon from '../../assets/icons/users.svg?react';
 import TargetIcon from '../../assets/icons/target.svg?react';
+import SwitcherIcon from '../../assets/icons/switcher.svg?react';
 
 interface UserPersonasProps {
   projectId: string;
   className?: string;
 }
 
-const UserPersonas: React.FC<UserPersonasProps> = ({ projectId, className = '' }) => {
+const UserPersonas: React.FC<UserPersonasProps> = ({ className = '' }) => {
   // Mock data based on the screenshot - in real app this would come from API
-  const personas: any[] = [
+  const personas: UserPersona[] = [
     {
       id: '1',
       name: 'Starter',
@@ -33,7 +34,7 @@ const UserPersonas: React.FC<UserPersonasProps> = ({ projectId, className = '' }
       id: '2',
       name: 'Switcher',
       description: 'Small business owner migrating from spreadsheets',
-      icon: '🔄',
+      icon: SwitcherIcon,
       color: 'purple',
       needs: ['Import tools', 'Simple automations', 'Reliability'],
       pain_points: ['Data migration anxiety', 'Learning new system'],
@@ -100,16 +101,19 @@ const UserPersonas: React.FC<UserPersonasProps> = ({ projectId, className = '' }
     }
   };
 
-  const PersonaCard = ({ persona }: { persona: any }) => {
-    const IconComponent = persona.icon;
-    const isStringIcon = typeof persona.icon === 'string';
+  const renderIcon = (icon: UserPersona['icon']) => {
+    if (typeof icon === 'string') return icon;
+    const IconComponent = icon;
+    return <IconComponent className="w-6 h-6 text-white" />;
+  };
 
+  const PersonaCard = ({ persona }: { persona: UserPersona }) => {
     return (
       <div className={`bg-gradient-to-br ${getColorClasses(persona.color)} rounded-2xl p-6 border backdrop-blur-md`}>
         {/* Header */}
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">
-            {isStringIcon ? persona.icon : <IconComponent className="w-6 h-6 text-white" />}
+            {renderIcon(persona.icon)}
           </div>
         <div>
           <h3 className="text-xl font-bold text-white">{persona.name}</h3>
