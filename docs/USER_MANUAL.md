@@ -1,7 +1,11 @@
 # ProjectFlow: New Agile User Manual
 *Outcome-Driven, Discovery-Led Project Management*
 
-Version 1.0 | Last Updated: October 2025
+Version 1.1 | Last Updated: July 2026
+
+> **What's new in v1.1** (based on July 2026 industry research — see docs/RESEARCH_LOG.md):
+> new "AI in New Agile" addendum, OKR scoring guidance, key-result reference in the
+> weekly rhythm, and notes on DORA/SPACE metrics and dynamic WIP limits.
 
 ---
 
@@ -178,6 +182,12 @@ Success Criteria: >75% completion = scale, <70% = kill
 - **Aging WIP:** Items stuck in progress
 - **WIP Distribution:** Where work is backing up
 
+> **2026 note:** High-performing teams pair these flow metrics with **DORA**
+> (delivery pipeline performance) and **SPACE** (the human factors that make
+> performance sustainable). WIP limits are also increasingly treated as
+> *dynamic* — reviewed against real team capacity in the weekly Flow Health
+> Check rather than fixed forever.
+
 ### Outcome Metrics
 - **OKR Progress:** Current vs target for each key result
 - **Experiment Win Rate:** % of experiments that scale
@@ -204,6 +214,9 @@ Success Criteria: >75% completion = scale, <70% = kill
 - WIP levels and aging items
 - Blockers that need swarming
 - Adjust limits if needed
+- Reference relevant key results before prioritizing new work — goals drive
+  the work, not the other way around (prevents "invisible OKRs" that get
+  silently abandoned)
 
 **Outcome Spotlight (10 min)**
 - Deep dive on one key metric
@@ -233,6 +246,9 @@ Success Criteria: >75% completion = scale, <70% = kill
 - Review and update objectives
 - Set new key results
 - Adjust targets based on learnings
+- Score the quarter honestly: a healthy OKR score lands around **0.6–0.7**.
+  Consistent 1.0s mean the goals weren't ambitious enough; abandoning an
+  off-track key result without an explicit revision is a governance smell
 
 **System Retrospective**
 - What's working well?
@@ -457,6 +473,54 @@ Review Date: [When to reassess]
 - Require evidence links for all delivery work
 - Weekly outcome spotlights
 - Reject work without clear hypothesis connection
+
+---
+
+## 🤖 2026 Addendum: AI in New Agile
+
+*Added in v1.1. Industry research (July 2026) shows AI has become a first-class
+participant in outcome-driven product work — 84% of agile practitioners now use
+it, and AI-assisted interview synthesis is the single most-cited discovery
+trend. These guidelines fold that into New Agile without weakening its
+evidence-first principles. ProjectFlow's built-in Claude integration supports
+these workflows.*
+
+### Where AI helps the discovery track
+
+**Interview & research synthesis (highest value)**
+- Feed raw interview notes, support tickets, or survey exports to AI and let it
+  draft Insights (title, category, impact, tags) for the Discovery Log
+- A human reviews every synthesized insight before it enters the log — AI
+  drafts, people decide
+
+**Hypothesis drafting**
+- AI can turn an opportunity's problem statement into a first-draft
+  "If we… then… measured by…" hypothesis with candidate success criteria
+- Treat the draft as a starting point; the product trio owns the final wording
+  and the scale/iterate/kill thresholds
+
+**Opportunity scoring assist**
+- AI can suggest initial confidence/effort/risk scores from the problem
+  statement and evidence — useful for triaging a large backlog, never a
+  substitute for team judgment
+
+### Synthetic users: allowed, with a hard boundary
+
+Synthetic (AI-simulated) users are acceptable for **early hypothesis
+generation**, prototype pressure-testing, and rehearsing research designs.
+They are **never valid final evidence**: no experiment moves to a "scale"
+decision on synthetic data alone. Real user validation remains mandatory.
+
+### Ground rules
+
+1. **Evidence provenance:** label AI-generated or AI-synthesized artifacts as
+   such wherever evidence is linked (opportunities, insights, decisions)
+2. **AI accelerates individuals more than teams** (2026 evidence: ~70% report
+   personal productivity gains, only ~17% better collaboration) — keep the
+   weekly Discovery Sync and Outcome Review human; AI prepares material for
+   those conversations, it doesn't replace them
+3. **Decisions stay human:** go/no-go, scale/kill, and OKR changes are made by
+   people and recorded in the Decision Log with their rationale
 
 ---
 

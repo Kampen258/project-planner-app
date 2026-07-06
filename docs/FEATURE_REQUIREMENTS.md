@@ -156,3 +156,19 @@
 - Historical data retention (2+ years)
 - Real-time collaboration (WebSocket)
 - Offline capability for mobile users
+## AI-Assisted Discovery (added July 2026, backlog)
+
+*Motivated by the v1.1 manual addendum (see docs/RESEARCH_LOG.md). All items
+reuse the app's existing Claude integration (safeClaudeService /
+modern-claude-service) — no new AI infrastructure required.*
+
+1. **Draft hypothesis with AI** — button in HypothesisModal: Claude drafts the
+   "If we… then… measured by…" statement and candidate success criteria from
+   the linked opportunity's problem statement; user edits before saving
+2. **Synthesize insight from notes** — mode in InsightModal: paste raw
+   interview notes or support-ticket text; Claude extracts insight title,
+   description, category, impact level, and tags for review
+3. **Opportunity scoring assist** — suggest initial confidence/effort/risk
+   from the problem statement and evidence during opportunity creation
+4. **Provenance labeling** — mark AI-generated/synthesized artifacts as such
+   wherever evidence is displayed (per the addendum's ground rules)
