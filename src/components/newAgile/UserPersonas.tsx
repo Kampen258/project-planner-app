@@ -1,5 +1,7 @@
 import React from 'react';
 import type { UserPersona } from '../../types/newAgile';
+import UsersIcon from '../../assets/icons/users.svg?react';
+import TargetIcon from '../../assets/icons/target.svg?react';
 
 interface UserPersonasProps {
   projectId: string;
@@ -8,12 +10,12 @@ interface UserPersonasProps {
 
 const UserPersonas: React.FC<UserPersonasProps> = ({ projectId, className = '' }) => {
   // Mock data based on the screenshot - in real app this would come from API
-  const personas: UserPersona[] = [
+  const personas: any[] = [
     {
       id: '1',
       name: 'Starter',
       description: 'First-time solo creator',
-      icon: '👤',
+      icon: UsersIcon,
       color: 'blue',
       needs: ['Clear onboarding', 'Quick path to value', 'Mobile-friendly tasks'],
       pain_points: ['Overwhelmed by complexity', 'Unclear where to start'],
@@ -49,7 +51,7 @@ const UserPersonas: React.FC<UserPersonasProps> = ({ projectId, className = '' }
       id: '3',
       name: 'Operator',
       description: 'Team coordinator (3-15 people)',
-      icon: '👥',
+      icon: UsersIcon,
       color: 'green',
       needs: ['Permissions', 'Shared dashboards', 'Recurring workflows', 'Status clarity'],
       pain_points: ['Team coordination complexity', 'Status tracking challenges'],
@@ -67,7 +69,7 @@ const UserPersonas: React.FC<UserPersonasProps> = ({ projectId, className = '' }
       id: '4',
       name: 'Advisor',
       description: 'External collaborator/client',
-      icon: '🎯',
+      icon: TargetIcon,
       color: 'orange',
       needs: ['Read-only access', 'Easy status views', 'Limited edit access'],
       pain_points: ['Too much information', 'Complex interfaces'],
@@ -98,13 +100,17 @@ const UserPersonas: React.FC<UserPersonasProps> = ({ projectId, className = '' }
     }
   };
 
-  const PersonaCard = ({ persona }: { persona: UserPersona }) => (
-    <div className={`bg-gradient-to-br ${getColorClasses(persona.color)} rounded-2xl p-6 border backdrop-blur-md`}>
-      {/* Header */}
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">
-          {persona.icon}
-        </div>
+  const PersonaCard = ({ persona }: { persona: any }) => {
+    const IconComponent = persona.icon;
+    const isStringIcon = typeof persona.icon === 'string';
+
+    return (
+      <div className={`bg-gradient-to-br ${getColorClasses(persona.color)} rounded-2xl p-6 border backdrop-blur-md`}>
+        {/* Header */}
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">
+            {isStringIcon ? persona.icon : <IconComponent className="w-6 h-6 text-white" />}
+          </div>
         <div>
           <h3 className="text-xl font-bold text-white">{persona.name}</h3>
           <p className="text-white/80 text-sm">{persona.description}</p>
@@ -181,7 +187,8 @@ const UserPersonas: React.FC<UserPersonasProps> = ({ projectId, className = '' }
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   return (
     <div className={`bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl ${className}`}>

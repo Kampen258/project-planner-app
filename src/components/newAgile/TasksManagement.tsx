@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import type { Task } from '../../types';
+import ClipboardIcon from '../../assets/icons/clipboard.svg?react';
+import NoteIcon from '../../assets/icons/note.svg?react';
+import RocketIcon from '../../assets/icons/rocket.svg?react';
+import LightningIcon from '../../assets/icons/lightning.svg?react';
+import EyeIcon from '../../assets/icons/eye.svg?react';
+import CheckCircleIcon from '../../assets/icons/check-circle.svg?react';
+import PartyIcon from '../../assets/icons/party.svg?react';
+import ChartBarIcon from '../../assets/icons/chart-bar.svg?react';
+import BanIcon from '../../assets/icons/ban.svg?react';
+import XCircleIcon from '../../assets/icons/x-circle.svg?react';
 
 interface TasksManagementProps {
   projectId: string;
@@ -74,61 +84,61 @@ const TasksManagement: React.FC<TasksManagementProps> = ({
     const configs = {
       backlog: {
         color: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
-        icon: '📋',
+        icon: ClipboardIcon,
         label: 'Backlog',
         description: 'Future ideas and unplanned work'
       },
       todo: {
         color: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-        icon: '📝',
+        icon: NoteIcon,
         label: 'To Do',
         description: 'Ready to be worked on'
       },
       ready: {
         color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
-        icon: '🚀',
+        icon: RocketIcon,
         label: 'Ready',
         description: 'Refined and ready to start'
       },
       in_progress: {
         color: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-        icon: '⚡',
+        icon: LightningIcon,
         label: 'In Progress',
         description: 'Currently being worked on'
       },
       review: {
         color: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
-        icon: '👁️',
+        icon: EyeIcon,
         label: 'Review',
         description: 'Under review or testing'
       },
       done: {
         color: 'bg-green-500/20 text-green-300 border-green-500/30',
-        icon: '✅',
+        icon: CheckCircleIcon,
         label: 'Done',
         description: 'Completed work'
       },
       released: {
         color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-        icon: '🎉',
+        icon: PartyIcon,
         label: 'Released',
         description: 'Shipped to production'
       },
       measuring: {
         color: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-        icon: '📊',
+        icon: ChartBarIcon,
         label: 'Measuring',
         description: 'Monitoring results'
       },
       blocked: {
         color: 'bg-red-500/20 text-red-300 border-red-500/30',
-        icon: '🚫',
+        icon: BanIcon,
         label: 'Blocked',
         description: 'Cannot proceed due to dependencies'
       },
       cancelled: {
         color: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-        icon: '❌',
+        icon: XCircleIcon,
         label: 'Cancelled',
         description: 'Work that was abandoned'
       },
@@ -220,10 +230,11 @@ const TasksManagement: React.FC<TasksManagementProps> = ({
           <div className="space-y-8">
             {Object.entries(tasksByStatus).map(([status, statusTasks]) => {
               const config = getStatusConfig(status);
+              const IconComponent = config.icon;
               return (
                 <div key={status}>
                   <div className="flex items-center space-x-3 mb-4">
-                    <span className="text-2xl">{config.icon}</span>
+                    <IconComponent className="w-6 h-6 text-white/80" />
                     <div>
                       <h3 className="text-lg font-semibold text-white">{config.label}</h3>
                       <p className="text-sm text-white/60">{config.description} ({statusTasks.length} tasks)</p>
