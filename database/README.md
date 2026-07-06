@@ -45,6 +45,23 @@ Execute these files in order in your Supabase SQL Editor:
 03_functions_and_triggers.sql
 ```
 
+### **Feature Migrations (`migrations/`)**
+
+Run after the core scripts, as needed:
+
+```bash
+migrations/add_okr_system.sql          # OKR objectives & key results
+migrations/add_weekly_goals.sql        # Weekly goals
+migrations/add_daily_notes.sql         # Daily notes
+migrations/add_discovery_system.sql    # New Agile discovery track (opportunities,
+                                       # hypotheses, experiments, insights,
+                                       # delivery_tasks) — Sprint 2
+```
+
+> ⚠️ `add_discovery_system.sql` ships with permissive dev-mode RLS policies
+> because the app currently uses mock auth. Tighten them when real Supabase
+> auth is enabled (see the TODO comments in the file).
+
 ### **Step 2: Update TypeScript Types**
 
 After running the SQL scripts, regenerate your database types:
