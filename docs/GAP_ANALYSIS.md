@@ -1,6 +1,8 @@
 # ProjectFlow App - Gap Analysis
 *Current State vs New Agile User Manual Requirements*
 
+> **Status update 2026-07-06:** Several features originally marked MISSING now have UI implementations in `src/components/newAgile/` and `src/components/okr/` (see per-section notes below). The common remaining gap is persistence: most New Agile UI runs on mock data because the discovery/flow database tables have not been created (only `database/migrations/add_okr_system.sql` exists).
+
 ## Current App Analysis
 
 ### ✅ What You Already Have
@@ -38,43 +40,41 @@
 
 ## ❌ Missing New Agile Features
 
-### 1. **Dual Board System** - MISSING
+### 1. **Dual Board System** - PARTIAL (was MISSING)
 **Required:** Discovery Track + Delivery Track boards
-**Current:** Single project/task view
-**Gap:** Need separate board interfaces for:
-- Discovery: Opportunities → Hypotheses → In Test → Learning → Archive
-- Delivery: Ready → In Progress → Review → Released → Measuring
+**Current:** UI implemented — `DiscoveryPipeline.tsx` and `DeliveryFlow*.tsx` in `src/components/newAgile/`
+**Remaining gap:**
+- Boards run on mock data; no `board_columns`/work-item persistence
+- Consolidate the four `DeliveryFlow` variants into one component
 
-### 2. **OKR Management System** - MISSING
+### 2. **OKR Management System** - PARTIAL (was MISSING)
 **Required:** Objectives & Key Results tracking
-**Current:** Basic project goals
-**Gap:** Need complete OKR system with:
-- Objectives creation and linking
-- Key Results with baseline → target metrics
+**Current:** Six components in `src/components/okr/`, `src/services/okr/okrService.ts`, and DB migration `database/migrations/add_okr_system.sql`
+**Remaining gap:**
 - Progress visualization dashboards
 - Quarterly review cycles
+- Project ↔ OKR linking in project creation flow
 
-### 3. **Discovery Track Features** - MISSING
-**Current:** Traditional project planning
-**Gap:** Need complete discovery methodology:
-- Opportunity management (problem statements, scoring)
-- Hypothesis creation with structured templates
-- Experiment tracking with timers and results
+### 3. **Discovery Track Features** - PARTIAL (was MISSING)
+**Current:** UI implemented — `OpportunityModal.tsx`, `HypothesisModal.tsx`, `ExperimentModal.tsx`, `DiscoveryLog.tsx`
+**Remaining gap:**
+- Database tables (opportunities, hypotheses, experiments, insights) — UI runs on mock data
+- Experiment timers
 - Evidence linking (analytics, research, support tickets)
 
-### 4. **Flow Metrics & Analytics** - MISSING
+### 4. **Flow Metrics & Analytics** - MOSTLY MISSING
 **Required:** Comprehensive flow tracking
-**Current:** Basic project progress
+**Current:** WIP-limit display exists in the delivery flow UI; no metrics engine
 **Gap:** Need advanced metrics:
 - Cycle time, lead time, throughput
-- WIP limits and enforcement
+- WIP limit enforcement (currently display-only)
 - Aging work alerts
 - Flow bottleneck identification
 
-### 5. **Decision Log System** - MISSING
+### 5. **Decision Log System** - PARTIAL (was MISSING)
 **Required:** Structured decision tracking
-**Current:** No decision documentation
-**Gap:** Complete decision log with rationale, evidence, outcomes
+**Current:** `DecisionLog.tsx` UI component exists
+**Gap:** No `decisions` table — needs persistence, rationale/evidence fields, outcomes tracking
 
 ### 6. **Templates System** - MISSING
 **Required:** Opportunity, Hypothesis, Decision templates

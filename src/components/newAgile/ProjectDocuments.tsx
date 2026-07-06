@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { documentService, type Document, type DocumentTemplate } from '../../services/documentService';
 import { useAuth } from '../../contexts/SimpleAuthContext';
+import CheckCircleIcon from '../../assets/icons/check-circle.svg?react';
+import RocketIcon from '../../assets/icons/rocket.svg?react';
+import ClipboardIcon from '../../assets/icons/clipboard.svg?react';
+import BuildingIcon from '../../assets/icons/building.svg?react';
+import FlaskIcon from '../../assets/icons/flask.svg?react';
+import DocumentIcon from '../../assets/icons/document.svg?react';
 
 interface ProjectDocumentsProps {
   projectId: string;
@@ -21,7 +27,6 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<DocumentTypeFilter>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [expandedDocument, setExpandedDocument] = useState<string | null>(null);
 
   useEffect(() => {
@@ -251,7 +256,6 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
       if (result.success && result.document) {
         setDocuments(prev => [result.document!, ...prev]);
         setShowCreateModal(false);
-        setSelectedTemplate(null);
       }
     } catch (error) {
       console.error('Error creating document:', error);
@@ -269,44 +273,44 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
     const configs = {
       dod: {
         color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-        icon: '✅',
+        icon: CheckCircleIcon,
         label: 'Definition of Done',
         description: 'Completion criteria'
       },
       dor: {
         color: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-        icon: '🚀',
+        icon: RocketIcon,
         label: 'Definition of Ready',
         description: 'Readiness criteria'
       },
       requirements: {
         color: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-        icon: '📋',
+        icon: ClipboardIcon,
         label: 'Requirements',
         description: 'Project requirements'
       },
       architecture: {
         color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
-        icon: '🏗️',
+        icon: BuildingIcon,
         label: 'Architecture',
         description: 'System design'
       },
       testing: {
         color: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
-        icon: '🧪',
+        icon: FlaskIcon,
         label: 'Testing',
         description: 'Test documentation'
       },
       deployment: {
         color: 'bg-red-500/20 text-red-300 border-red-500/30',
-        icon: '🚀',
+        icon: RocketIcon,
         label: 'Deployment',
         description: 'Deployment guides'
       }
     };
     return configs[type as keyof typeof configs] || {
       color: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
-      icon: '📄',
+      icon: DocumentIcon,
       label: 'Document',
       description: 'General document'
     };
@@ -400,6 +404,7 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
             {filteredDocuments.map(document => {
               const config = getDocumentTypeConfig(document.document_type);
               const isExpanded = expandedDocument === document.id;
+              const IconComponent = config.icon;
 
               return (
                 <div key={document.id} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
@@ -408,7 +413,7 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <span className="text-xl">{config.icon}</span>
+                          <IconComponent className="w-5 h-5 text-white/80" />
                           <div>
                             <h3 className="font-semibold text-white">{document.title}</h3>
                             <p className="text-sm text-white/60">{config.description}</p>
@@ -447,7 +452,7 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
                   {isExpanded && document.content?.sections && (
                     <div className="border-t border-white/10 p-4 bg-white/5">
                       <div className="space-y-6">
-                        {document.content.sections.map((section: any, sectionIndex: number) => (
+                        {document.content.sections.map((section: { title: string; items?: string[] }, sectionIndex: number) => (
                           <div key={sectionIndex}>
                             <h4 className="font-medium text-white mb-3 flex items-center space-x-2">
                               <span className="w-2 h-2 bg-white/60 rounded-full"></span>
@@ -497,6 +502,7 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {templates.map(template => {
                   const config = getDocumentTypeConfig(template.category);
+                  const IconComponent = config.icon;
                   return (
                     <button
                       key={template.id}
@@ -504,7 +510,7 @@ const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
                       className="p-4 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 text-left transition-colors group"
                     >
                       <div className="flex items-center space-x-3 mb-2">
-                        <span className="text-2xl">{config.icon}</span>
+                        <IconComponent className="w-6 h-6 text-white/80" />
                         <div>
                           <h4 className="font-semibold text-white group-hover:text-white/90">{template.name}</h4>
                           <span className={`text-xs px-2 py-1 rounded-full border ${config.color}`}>

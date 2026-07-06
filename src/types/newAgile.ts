@@ -1,6 +1,11 @@
 // New Agile Methodology Types
 // Outcome-driven, discovery-led project management
 
+import type { ComponentType, SVGProps } from 'react';
+
+// Persona icons may come from the API as emoji strings or be SVG components imported via *.svg?react
+export type PersonaIcon = string | ComponentType<SVGProps<SVGSVGElement>>;
+
 export type OpportunityStatus = 'backlog' | 'researching' | 'validated' | 'archived';
 export type HypothesisStatus = 'draft' | 'in_test' | 'learning' | 'scaled' | 'killed' | 'archived';
 export type ExperimentStatus = 'planned' | 'running' | 'completed' | 'cancelled';
@@ -206,7 +211,7 @@ export interface UserPersona {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon: PersonaIcon;
   color: string;
   needs: string[];
   pain_points: string[];
