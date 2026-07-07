@@ -8,6 +8,8 @@ import type {
   ExperimentCreateRequest,
   Insight,
   InsightCreateRequest,
+  Decision,
+  DecisionCreateRequest,
   DeliveryTask,
   DeliveryTaskCreateRequest
 } from '../types/newAgile';
@@ -110,7 +112,7 @@ export class NewAgileService {
 
   static async updateOpportunity(
     id: string,
-    updates: Partial<OpportunityCreateRequest>
+    updates: Partial<Opportunity>
   ): Promise<Opportunity | null> {
     try {
       const { data, error } = await supabase
@@ -471,6 +473,143 @@ export class NewAgileService {
       return (data || []) as DeliveryTask[];
     } catch (error) {
       console.error('❌ [NewAgileService] Service error in getDeliveryTasks:', error);
+      return [];
+    }
+  }
+
+  static async updateHypothesis(
+    id: string,
+    updates: Partial<Hypothesis>
+  ): Promise<Hypothesis | null> {
+    try {
+      const { data, error } = await supabase
+        .from('hypotheses')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ [NewAgileService] Error updating hypothesis:', error);
+        if (isTableMissingOrOffline(error)) return null;
+        throw error;
+      }
+      return data as Hypothesis;
+    } catch (error) {
+      console.error('❌ [NewAgileService] Service error in updateHypothesis:', error);
+      return null;
+    }
+  }
+
+  static async updateExperiment(
+    id: string,
+    updates: Partial<Experiment>
+  ): Promise<Experiment | null> {
+    try {
+      const { data, error } = await supabase
+        .from('experiments')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ [NewAgileService] Error updating experiment:', error);
+        if (isTableMissingOrOffline(error)) return null;
+        throw error;
+      }
+      return data as Experiment;
+    } catch (error) {
+      console.error('❌ [NewAgileService] Service error in updateExperiment:', error);
+      return null;
+    }
+  }
+
+  static async updateDeliveryTask(
+    id: string,
+    updates: Partial<DeliveryTask>
+  ): Promise<DeliveryTask | null> {
+    try {
+      // Stamp flow timestamps so cycle time can be derived later (Sprint 5)
+      const stamped: Partial<DeliveryTask> = { ...updates };
+      if (updates.status === 'in_progress' && !updates.started_at) {
+        stamped.started_at = new Date().toISOString();
+      }
+      if (updates.status === 'released' && !updates.completed_at) {
+        stamped.completed_at = new Date().toISOString();
+      }
+
+      const { data, error } = await supabase
+        .from('delivery_tasks')
+        .update({ ...stamped, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ [NewAgileService] Error updating delivery task:', error);
+        if (isTableMissingOrOffline(error)) return null;
+        throw error;
+      }
+      return data as DeliveryTask;
+    } catch (error) {
+      console.error('❌ [NewAgileService] Service error in updateDeliveryTask:', error);
+      return null;
+    }
+  }
+
+  // Decision Log Methods
+  static async createDecision(
+    decisionData: DecisionCreateRequest,
+    projectId: string,
+    userId: string
+  ): Promise<Decision | null> {
+    try {
+      const fullDecisionData = {
+        ...decisionData,
+        project_id: projectId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_by: userId
+      };
+
+      const { data, error } = await supabase
+        .from('decisions')
+        .insert(fullDecisionData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ [NewAgileService] Error creating decision:', error);
+        if (isTableMissingOrOffline(error)) {
+          console.warn('⚠️ [NewAgileService] Decisions table not found, returning mock data');
+          return { id: `mock-dec-${Date.now()}`, ...fullDecisionData } as Decision;
+        }
+        throw error;
+      }
+      return data as unknown as Decision;
+    } catch (error) {
+      console.error('❌ [NewAgileService] Service error in createDecision:', error);
+      return null;
+    }
+  }
+
+  static async getDecisions(projectId: string): Promise<Decision[]> {
+    try {
+      const { data, error } = await supabase
+        .from('decisions')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('❌ [NewAgileService] Error fetching decisions:', error);
+        if (isTableMissingOrOffline(error)) return [];
+        throw error;
+      }
+      return (data || []) as unknown as Decision[];
+    } catch (error) {
+      console.error('❌ [NewAgileService] Service error in getDecisions:', error);
       return [];
     }
   }

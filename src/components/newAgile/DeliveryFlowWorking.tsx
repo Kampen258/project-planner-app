@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { Task } from '../../types';
+import type { DeliveryTask, DeliveryTaskStatus } from '../../types/newAgile';
+import { NewAgileService } from '../../services/newAgileService';
+
+const DELIVERY_STATUSES: readonly DeliveryTaskStatus[] = ['ready', 'in_progress', 'review', 'released', 'measuring'];
 
 interface DeliveryFlowWorkingProps {
   projectId: string;
@@ -21,12 +25,29 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
   tasks = [],
   selectedPhaseId,
   onTaskCreate,
-  onTaskUpdate,
   onClearPhaseFilter,
   onPhaseSelect
 }) => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [displayTasks, setDisplayTasks] = useState(tasks);
+  // Persisted New Agile delivery tasks (delivery_tasks table) — rendered
+  // alongside the legacy task cards; these carry experiment references and
+  // move through the flow with persistence.
+  const [deliveryTasks, setDeliveryTasks] = useState<DeliveryTask[]>([]);
+
+  const loadDeliveryTasks = useCallback(async () => {
+    const data = await NewAgileService.getDeliveryTasks(projectId);
+    setDeliveryTasks(data);
+  }, [projectId]);
+
+  useEffect(() => {
+    void loadDeliveryTasks();
+  }, [loadDeliveryTasks]);
+
+  const handleDeliveryTaskMove = async (id: string, status: DeliveryTaskStatus) => {
+    setDeliveryTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+    await NewAgileService.updateDeliveryTask(id, { status });
+  };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
@@ -52,7 +73,7 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
   };
 
   // WIP limits for each column (New Agile method)
-  const [wipLimits, setWipLimits] = useState({
+  const [wipLimits] = useState({
     in_progress: 3, // WIP limit for In Progress
     review: 2       // WIP limit for Review (should be smaller for quick feedback)
   });
@@ -239,12 +260,6 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
       };
     }
     return { isExceeded: false, isAtLimit: false, limit: 0, count: taskCount };
-  };
-
-  // Map task status to swimming lane columns
-  const mapTaskToColumn = (task: Task) => {
-    // Real task statuses: 'todo' | 'in_progress' | 'completed' | 'cancelled'
-    return task.status;
   };
 
   // Handle form input changes
@@ -442,7 +457,8 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
       <div className="grid grid-cols-5 gap-3">
         {columns.map((column) => {
           const columnTasks = displayTasks.filter(task => task.status === column.id);
-          const wipStatus = getWipStatus(column.id, columnTasks.length);
+          const columnDeliveryTasks = deliveryTasks.filter(task => task.status === column.id);
+          const wipStatus = getWipStatus(column.id, columnTasks.length + columnDeliveryTasks.length);
 
           return (
             <div key={column.id} className="bg-white/5 rounded-lg p-4 min-h-[400px]">
@@ -468,7 +484,7 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
                 {!column.hasWipLimit && (
                   <div className="text-center mt-1">
                     <span className="text-xs text-white/50">
-                      {columnTasks.length} items
+                      {columnTasks.length + columnDeliveryTasks.length} items
                     </span>
                   </div>
                 )}
@@ -476,6 +492,35 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
 
               {/* Tasks in this column */}
               <div className="space-y-3">
+                {columnDeliveryTasks.map((task) => {
+                  const priorityColors = getPriorityColor(task.priority);
+                  return (
+                    <div
+                      key={task.id}
+                      className="bg-white/10 border border-white/20 rounded-lg p-3 hover:bg-white/20 transition-colors"
+                    >
+                      <div className="text-white font-medium text-sm mb-2">{task.title}</div>
+                      {task.experiment_reference && (
+                        <div className="text-xs text-purple-300 mb-2">🧪 From experiment</div>
+                      )}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${priorityColors.bg} ${priorityColors.text} ${priorityColors.border} border`}>
+                          {task.priority}
+                        </span>
+                        <select
+                          value={task.status}
+                          onChange={(e) => { void handleDeliveryTaskMove(task.id, e.target.value as DeliveryTaskStatus); }}
+                          className="bg-white/10 border border-white/20 rounded px-1 py-0.5 text-xs text-white cursor-pointer"
+                          title="Move to another column"
+                        >
+                          {DELIVERY_STATUSES.map(s => (
+                            <option key={s} value={s} className="bg-gray-800">{s.replace('_', ' ')}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  );
+                })}
                 {columnTasks.map((task) => {
                   const priorityColors = getPriorityColor(task.priority);
                   return (
@@ -522,7 +567,7 @@ const DeliveryFlowWorking: React.FC<DeliveryFlowWorkingProps> = ({
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-2xl font-bold text-white">Create New Task</h3>
-                    <p className="text-white/60 mt-1">{steps[currentStep - 1].description}</p>
+                    <p className="text-white/60 mt-1">{steps[currentStep - 1]?.description}</p>
                   </div>
                   <button
                     onClick={() => {

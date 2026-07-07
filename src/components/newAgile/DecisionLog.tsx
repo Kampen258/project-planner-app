@@ -1,5 +1,8 @@
-import React from 'react';
-import type { Decision } from '../../types/newAgile';
+import React, { useState, useEffect, useCallback } from 'react';
+import type { Decision, DecisionCreateRequest } from '../../types/newAgile';
+import DecisionModal from './DecisionModal';
+import { useAuth } from '../../contexts/SimpleAuthContext';
+import { NewAgileService } from '../../services/newAgileService';
 
 interface DecisionLogProps {
   projectId: string;
@@ -7,12 +10,36 @@ interface DecisionLogProps {
 }
 
 const DecisionLog: React.FC<DecisionLogProps> = ({ projectId, className = '' }) => {
-  // Mock data - in real app this would come from API
-  const decisions: Decision[] = [];
+  const { user } = useAuth();
+  const [decisions, setDecisions] = useState<Decision[]>([]);
+  const [showDecisionModal, setShowDecisionModal] = useState(false);
+
+  const loadDecisions = useCallback(async () => {
+    const data = await NewAgileService.getDecisions(projectId);
+    setDecisions(data);
+  }, [projectId]);
+
+  useEffect(() => {
+    void loadDecisions();
+  }, [loadDecisions]);
 
   const handleNewDecision = () => {
-    // TODO: Open decision creation modal
-    console.log('Creating new decision');
+    setShowDecisionModal(true);
+  };
+
+  const handleSaveDecision = async (decisionData: DecisionCreateRequest) => {
+    const result = await NewAgileService.createDecision(
+      decisionData,
+      projectId,
+      user?.id ?? 'anonymous'
+    );
+
+    if (result) {
+      console.log('✅ Decision saved successfully:', result);
+      setDecisions(prev => [result, ...prev]);
+    } else {
+      throw new Error('Failed to create decision');
+    }
   };
 
   const EmptyState = () => (
@@ -216,6 +243,14 @@ const DecisionLog: React.FC<DecisionLogProps> = ({ projectId, className = '' }) 
           </div>
         )}
       </div>
+
+      {/* Decision Modal */}
+      <DecisionModal
+        isOpen={showDecisionModal}
+        onClose={() => setShowDecisionModal(false)}
+        onSave={handleSaveDecision}
+        projectId={projectId}
+      />
     </div>
   );
 };

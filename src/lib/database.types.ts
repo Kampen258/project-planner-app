@@ -605,6 +605,66 @@ export type Database = {
         }
         Relationships: []
       }
+      decisions: {
+        Row: {
+          id: string
+          project_id: string
+          title: string
+          context: string | null
+          options_considered: Json
+          decision: string | null
+          rationale: string | null
+          evidence: Json
+          owner: string | null
+          stakeholders: Json
+          success_criteria: Json
+          review_date: string | null
+          outcome: string | null
+          lessons_learned: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          title: string
+          context?: string | null
+          options_considered?: Json
+          decision?: string | null
+          rationale?: string | null
+          evidence?: Json
+          owner?: string | null
+          stakeholders?: Json
+          success_criteria?: Json
+          review_date?: string | null
+          outcome?: string | null
+          lessons_learned?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          title?: string
+          context?: string | null
+          options_considered?: Json
+          decision?: string | null
+          rationale?: string | null
+          evidence?: Json
+          owner?: string | null
+          stakeholders?: Json
+          success_criteria?: Json
+          review_date?: string | null
+          outcome?: string | null
+          lessons_learned?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

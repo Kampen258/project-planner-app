@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Opportunity, Hypothesis, Experiment, OpportunityCreateRequest, HypothesisCreateRequest, ExperimentCreateRequest } from '../../types/newAgile';
+import type { Opportunity, Hypothesis, Experiment, OpportunityCreateRequest, HypothesisCreateRequest, ExperimentCreateRequest, OpportunityStatus, HypothesisStatus, ExperimentStatus } from '../../types/newAgile';
 import OpportunityModal from './OpportunityModal';
 import HypothesisModal from './HypothesisModal';
 import ExperimentModal from './ExperimentModal';
@@ -29,11 +29,30 @@ const statusBadgeClasses: Record<string, string> = {
   cancelled: 'bg-red-500/20 text-red-300 border-red-500/30',
 };
 
-const StatusBadge = ({ status }: { status: string }) => (
-  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusBadgeClasses[status] ?? statusBadgeClasses.backlog}`}>
-    {status.replace('_', ' ')}
-  </span>
+// Interactive status control styled like a badge — changing it persists the
+// lifecycle transition (backlog → researching → validated, draft → in_test, …)
+const StatusSelect = <T extends string>({ status, options, onChange }: {
+  status: T;
+  options: readonly T[];
+  onChange: (next: T) => void;
+}) => (
+  <select
+    value={status}
+    onChange={(e) => onChange(e.target.value as T)}
+    className={`px-2 py-1 rounded-full text-xs font-medium border cursor-pointer ${statusBadgeClasses[status] ?? statusBadgeClasses.backlog}`}
+  >
+    {options.map(option => (
+      <option key={option} value={option} className="bg-gray-800 text-white">
+        {option.replace('_', ' ')}
+      </option>
+    ))}
+  </select>
 );
+
+const OPPORTUNITY_STATUSES: readonly OpportunityStatus[] = ['backlog', 'researching', 'validated', 'archived'];
+const HYPOTHESIS_STATUSES: readonly HypothesisStatus[] = ['draft', 'in_test', 'learning', 'scaled', 'killed', 'archived'];
+const EXPERIMENT_STATUSES: readonly ExperimentStatus[] = ['planned', 'running', 'completed', 'cancelled'];
+const EXPERIMENT_DECISIONS = ['pending', 'scale', 'iterate', 'kill'] as const;
 
 const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, className = '' }) => {
   const { user } = useAuth();
@@ -142,6 +161,44 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
     }
   };
 
+  const handleOpportunityStatusChange = async (id: string, status: OpportunityStatus) => {
+    setOpportunities(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+    await NewAgileService.updateOpportunity(id, { status });
+  };
+
+  const handleHypothesisStatusChange = async (id: string, status: HypothesisStatus) => {
+    setHypotheses(prev => prev.map(h => h.id === id ? { ...h, status } : h));
+    await NewAgileService.updateHypothesis(id, { status });
+  };
+
+  const handleExperimentStatusChange = async (id: string, status: ExperimentStatus) => {
+    setExperiments(prev => prev.map(x => x.id === id ? { ...x, status } : x));
+    await NewAgileService.updateExperiment(id, { status });
+  };
+
+  const handleExperimentDecision = async (experiment: Experiment, decision: Experiment['decision']) => {
+    setExperiments(prev => prev.map(x => x.id === experiment.id ? { ...x, decision } : x));
+    await NewAgileService.updateExperiment(experiment.id, { decision });
+
+    // The manual's discovery → delivery hand-off: a scaled experiment becomes delivery work
+    if (decision === 'scale') {
+      const task = await NewAgileService.createDeliveryTask({
+        title: `Deliver: ${experiment.title}`,
+        description: `Implementation work for the validated experiment "${experiment.title}"`,
+        priority: 'high',
+        effort: 'M',
+        experiment_reference: experiment.id,
+        hypothesis_reference: experiment.hypothesis_id,
+        acceptance_criteria: [],
+        tags: ['scaled-experiment']
+      }, projectId, user?.id ?? 'anonymous');
+
+      if (task) {
+        console.log('✅ Delivery task created from scaled experiment:', task.id);
+      }
+    }
+  };
+
   const EmptyState = ({ type, description, cta, onAdd }: { type: string; description: string; cta: string; onAdd: () => void }) => (
     <div className="text-center py-16">
       <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
@@ -167,7 +224,11 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-semibold text-white">{opportunity.title}</h4>
-        <StatusBadge status={opportunity.status} />
+        <StatusSelect
+          status={opportunity.status}
+          options={OPPORTUNITY_STATUSES}
+          onChange={(status) => { void handleOpportunityStatusChange(opportunity.id, status); }}
+        />
       </div>
       {opportunity.problem_statement && (
         <p className="text-white/70 text-sm mb-3 line-clamp-2">{opportunity.problem_statement}</p>
@@ -185,7 +246,11 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-semibold text-white">{hypothesis.title}</h4>
-        <StatusBadge status={hypothesis.status} />
+        <StatusSelect
+          status={hypothesis.status}
+          options={HYPOTHESIS_STATUSES}
+          onChange={(status) => { void handleHypothesisStatusChange(hypothesis.id, status); }}
+        />
       </div>
       {hypothesis.hypothesis_statement && (
         <p className="text-white/70 text-sm mb-3 line-clamp-2">{hypothesis.hypothesis_statement}</p>
@@ -201,7 +266,11 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-semibold text-white">{experiment.title}</h4>
-        <StatusBadge status={experiment.status} />
+        <StatusSelect
+          status={experiment.status}
+          options={EXPERIMENT_STATUSES}
+          onChange={(status) => { void handleExperimentStatusChange(experiment.id, status); }}
+        />
       </div>
       {experiment.description && (
         <p className="text-white/70 text-sm mb-3 line-clamp-2">{experiment.description}</p>
@@ -213,7 +282,20 @@ const DiscoveryPipeline: React.FC<DiscoveryPipelineProps> = ({ projectId, classN
             {new Date(experiment.start_date).toLocaleDateString()} → {new Date(experiment.end_date).toLocaleDateString()}
           </span>
         )}
-        <span className="px-2 py-1 bg-white/10 rounded">Decision: {experiment.decision}</span>
+        {experiment.status === 'completed' ? (
+          <select
+            value={experiment.decision}
+            onChange={(e) => { void handleExperimentDecision(experiment, e.target.value as Experiment['decision']); }}
+            className="px-2 py-1 bg-white/10 border border-white/20 rounded text-xs text-white cursor-pointer"
+            title="Scale creates a linked delivery task"
+          >
+            {EXPERIMENT_DECISIONS.map(d => (
+              <option key={d} value={d} className="bg-gray-800">Decision: {d}</option>
+            ))}
+          </select>
+        ) : (
+          <span className="px-2 py-1 bg-white/10 rounded">Decision: {experiment.decision}</span>
+        )}
       </div>
     </div>
   );

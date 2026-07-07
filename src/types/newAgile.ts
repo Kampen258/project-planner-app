@@ -193,6 +193,7 @@ export interface DeliveryTask {
 // Decision Log Entry
 export interface Decision {
   id: string;
+  project_id: string;
   title: string;
   context: string;
   options_considered: {
@@ -330,6 +331,23 @@ export interface InsightCreateRequest {
   actionable: boolean;
   tags: string[];
   linked_opportunities: string[];
+}
+
+export interface DecisionCreateRequest {
+  title: string;
+  context: string;
+  options_considered: {
+    option: string;
+    pros: string[];
+    cons: string[];
+  }[];
+  decision: string;
+  rationale: string;
+  evidence: string[];
+  owner: string;
+  stakeholders: string[];
+  success_criteria: string[];
+  review_date?: string;
 }
 
 export interface DeliveryTaskCreateRequest {
